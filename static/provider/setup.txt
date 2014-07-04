@@ -1,0 +1,75 @@
+
+lib.logo {
+	big = IMG_RESOURCE
+	big {
+		file.import.field = file
+		file.maxH = 400
+		file.maxW = 400
+	}
+	small = IMG_RESOURCE
+	small {
+		file.import.field = file
+		file.maxH = 100
+		file.maxW = 100
+	}
+}
+lib.pictures {
+	big = IMG_RESOURCE
+	big {
+		file.import.field = file
+		file.maxH = 1240
+		file.maxW = 1240
+	}
+	medium = IMG_RESOURCE
+	medium {
+		file.import.field = file
+		file.maxH = 500
+		file.maxW = 500
+	}
+	small = IMG_RESOURCE
+	small {
+		file.import.field = file
+		file.maxH = 200
+		file.maxW = 200
+	}
+}
+
+lib.competition.record {
+# Hinweis: Das Logo sollte explizit über die URL angefragt werden:
+# &t3rest[externals][competition]=logo
+#  externals = logo
+	externals.logo < lib.logo
+}
+lib.profile.record {
+	externals.pictures < lib.pictures
+}
+
+# Zugriff auf Teams
+team.get {
+  record.externals = logo, pictures
+	record.externals.pictures < lib.pictures
+	record.externals.logo < lib.logo
+}
+
+#Zugriff aus Spiele
+match.get {
+  record.externals = teams, pictures, competition
+	record.externals.pictures < lib.pictures
+	record.externals.teams {
+	  record < team.get.record
+	  record.externals = logo
+	}
+	# Im Spielbericht sind die Personen im Team uninteressant. Die stehen direkt im Match
+	record.externals.teams.record.ignoreFields = coaches,players,supporters,players_comment,coaches_comment,supporters_comment
+	record.externals.competition {
+		record < lib.competition.record
+	  record.externals = logo
+	}
+}
+match.search {
+	record < match.get.record
+	record.ignoreFields ( 
+		players_guest_stat,players_home_stat,substitutes_guest_stat,substitutes_home_stat,game_report,
+		scorer_home_stat,scorer_guest_stat, players_home,players_guest,substitutes_home,substitutes_guest
+)
+}
