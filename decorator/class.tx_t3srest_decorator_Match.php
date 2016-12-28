@@ -2,7 +2,7 @@
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2012 Rene Nitzsche
+ *  (c) 2012-2016 Rene Nitzsche
  *  Contact: rene@system25.de
  *  All rights reserved
  *
@@ -21,15 +21,13 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  ***************************************************************/
 
-require_once(t3lib_extMgm::extPath('rn_base') . 'class.tx_rnbase.php');
-
 tx_rnbase::load('tx_t3rest_decorator_Base');
 tx_rnbase::load('tx_t3rest_util_DAM');
 
 
 /**
  * Sammelt zusätzliche Daten
- * 
+ *
  * @author Rene Nitzsche
  */
 class tx_t3srest_decorator_Match extends tx_t3rest_decorator_Base {
@@ -41,65 +39,75 @@ class tx_t3srest_decorator_Match extends tx_t3rest_decorator_Base {
 	public static function addMatchnotes($item, $configurations, $confId) {
 
 		// FIXME: das Spiel nochmal über die alte API laden, um an die MatchNotes zu kommen
-		$match = tx_rnbase::makeInstance('tx_cfcleaguefe_models_match', $item->record);
+		$match = tx_rnbase::makeInstance('tx_cfcleaguefe_models_match', $item->getProperty());
 		tx_rnbase::load('tx_cfcleaguefe_util_MatchTicker');
 		$matchNotes =& tx_cfcleaguefe_util_MatchTicker::getTicker4Match($match);
-		$item->matchNotes = array();
+		$notes = array();
 		$decorator = tx_rnbase::makeInstance('tx_t3srest_decorator_MatchNote');
 		foreach($matchNotes As $note) {
 			unset($note->match);
-			$item->matchNotes[] = $decorator->prepareItem($note, $configurations, $confId);
+			$notes[] = $decorator->prepareItem($note, $configurations, $confId);
 		}
+		$item->setProperty('matchNotes', $notes);
 	}
 	public static function addPlayers($item, $configurations, $confId) {
-		$item->playersHome = array();
-		$item->playersGuest = array();
-		$item->substitutesHome = array();
-		$item->substitutesGuest = array();
-		
+		$playersHome = array();
+		$playersGuest = array();
+		$substitutesHome = array();
+		$substitutesGuest = array();
+
 		$decorator = tx_rnbase::makeInstance('tx_t3srest_decorator_Profile');
 		// FIXME: das Spiel nochmal über die alte API laden, um an die MatchNotes zu kommen
-		$match = tx_rnbase::makeInstance('tx_cfcleaguefe_models_match', $item->record);
+		$match = tx_rnbase::makeInstance('tx_cfcleaguefe_models_match', $item->getProperty());
 		$profiles = $match->getPlayersHome();
 		foreach($profiles As $profile) {
-			$item->playersHome[] = $decorator->prepareItem($profile, $configurations, $confId);
+			$playersHome[] = $decorator->prepareItem($profile, $configurations, $confId);
 		}
+		$item->setProperty('playersHome', $playersHome);
+
 		$profiles = $match->getPlayersGuest();
 		foreach($profiles As $profile) {
 			$item->playersGuest[] = $decorator->prepareItem($profile, $configurations, $confId);
+			$playersGuest[] = $decorator->prepareItem($profile, $configurations, $confId);
 		}
+		$item->setProperty('playersGuest', $playersGuest);
+
 		$profiles = $match->getSubstitutesHome();
 		foreach($profiles As $profile) {
-			$item->substitutesHome[] = $decorator->prepareItem($profile, $configurations, $confId);
+			$substitutesHome[] = $decorator->prepareItem($profile, $configurations, $confId);
 		}
-			$profiles = $match->getSubstitutesGuest();
+		$item->setProperty('substitutesHome', $substitutesHome);
+
+		$profiles = $match->getSubstitutesGuest();
 		foreach($profiles As $profile) {
-			$item->substitutesGuest[] = $decorator->prepareItem($profile, $configurations, $confId);
+			$substitutesGuest[] = $decorator->prepareItem($profile, $configurations, $confId);
 		}
-// 		t3lib_div::debug($item, 'tx_t3srest_decorator_Match: '.__LINE__);
+		$item->setProperty('substitutesGuest', $substitutesGuest);
+		// 		t3lib_div::debug($item, 'tx_t3srest_decorator_Match: '.__LINE__);
 // 		exit();
-		
+
 	}
 	public static function addReferees($item, $configurations, $confId) {
-		$item->referees = array();
+		$referees = array();
 		$decorator = tx_rnbase::makeInstance('tx_t3srest_decorator_Profile');
 		// FIXME: das Spiel nochmal über die alte API laden, um an die MatchNotes zu kommen
-		$match = tx_rnbase::makeInstance('tx_cfcleaguefe_models_match', $item->record);
+		$match = tx_rnbase::makeInstance('tx_cfcleaguefe_models_match', $item->getProperty());
 		$referee = $match->getReferee();
 		//TODO: if($referee)
-			$item->referees['referee'] = $decorator->prepareItem($referee, $configurations, $confId);
+		$referees['referee'] = $decorator->prepareItem($referee, $configurations, $confId);
 		$profiles = $match->getAssists();
-		$item->referees['assists'] = array();
+		$referees['assists'] = array();
 		foreach($profiles As $profile) {
-			$item->referees['assists'][] = $decorator->prepareItem($profile, $configurations, $confId);
+			$referees['assists'][] = $decorator->prepareItem($profile, $configurations, $confId);
 		}
+		$item->setProperty('referees', $referees);
 	}
 	public static function addCoaches($item, $configurations, $confId) {
 		$decorator = tx_rnbase::makeInstance('tx_t3srest_decorator_Profile');
 		// FIXME: das Spiel nochmal über die alte API laden, um an die MatchNotes zu kommen
-		$match = tx_rnbase::makeInstance('tx_cfcleaguefe_models_match', $item->record);
-		$item->coachHome = $decorator->prepareItem($match->getCoachHome(), $configurations, $confId);
-		$item->coachGuest = $decorator->prepareItem($match->getCoachGuest(), $configurations, $confId);
+		$match = tx_rnbase::makeInstance('tx_cfcleaguefe_models_match', $item->getProperty());
+		$item->setProperty('coachHome', $decorator->prepareItem($match->getCoachHome(), $configurations, $confId));
+		$item->setProperty('coachGuest', $decorator->prepareItem($match->getCoachGuest(), $configurations, $confId));
 	}
 	/**
 	 * Teams laden
@@ -111,19 +119,19 @@ class tx_t3srest_decorator_Match extends tx_t3rest_decorator_Base {
 	public static function addTeams($item, $configurations, $confId) {
 		$decorator = tx_rnbase::makeInstance('tx_t3srest_decorator_Team');
 		$home = $item->getHome();
-		$item->teamHome = $decorator->prepareItem($home, $configurations, $confId);
+		$item->setProperty('teamHome', $decorator->prepareItem($home, $configurations, $confId));
 		$guest = $item->getGuest();
-		$item->teamGuest = $decorator->prepareItem($guest, $configurations, $confId);
+		$item->setProperty('teamGuest', $decorator->prepareItem($guest, $configurations, $confId));
 	}
 	protected function addCompetition($item, $configurations, $confId) {
 		// Der Wettbewerb sollte Schon vorhanden sein
 		$decorator = tx_rnbase::makeInstance('tx_t3srest_decorator_Competition');
 		$comp = $item->getCompetition();
-		$item->competition = $decorator->prepareItem($comp, $configurations, $confId);
+		$item->setProperty('competition', $decorator->prepareItem($comp, $configurations, $confId));
 	}
 	protected function addPictures($item, $configurations, $confId) {
 		$pics = tx_t3rest_util_DAM::getDamPictures($item->getUid(), 'tx_cfcleague_games', 'dam_images', $configurations, $confId);
-		$item->pictures = $pics;
+		$item->setProperty('pictures', $pics);
 	}
 
 	/**
@@ -147,6 +155,3 @@ class tx_t3srest_decorator_Match extends tx_t3rest_decorator_Base {
 	}
 }
 
-if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/t3srest/provider/class.tx_t3srest_decorator_Team.php']) {
-	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/t3srest/provider/class.tx_t3srest_decorator_Team.php']);
-}

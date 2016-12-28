@@ -21,8 +21,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  ***************************************************************/
 
-require_once(t3lib_extMgm::extPath('rn_base') . 'class.tx_rnbase.php');
-
 tx_rnbase::load('tx_t3rest_models_Provider');
 tx_rnbase::load('tx_t3rest_provider_AbstractBase');
 tx_rnbase::load('tx_t3rest_util_Objects');
@@ -30,7 +28,7 @@ tx_rnbase::load('tx_t3rest_util_Objects');
 
 /**
  * This is a sample REST provider for tt_news
- * 
+ *
  * @author Rene Nitzsche
  */
 class tx_t3srest_provider_Matches extends tx_t3rest_provider_AbstractBase {
@@ -76,8 +74,4 @@ class tx_t3srest_provider_Matches extends tx_t3rest_provider_AbstractBase {
 	protected function getConfId() {
 		return 'match.';
 	}
-}
-
-if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/t3srest/provider/class.tx_t3srest_provider_Matches.php']) {
-	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/t3srest/provider/class.tx_t3srest_provider_Matches.php']);
 }

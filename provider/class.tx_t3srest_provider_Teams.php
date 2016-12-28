@@ -21,8 +21,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  ***************************************************************/
 
-require_once(t3lib_extMgm::extPath('rn_base') . 'class.tx_rnbase.php');
-
 tx_rnbase::load('tx_t3rest_models_Provider');
 tx_rnbase::load('tx_t3rest_provider_AbstractBase');
 tx_rnbase::load('tx_t3rest_util_Objects');
@@ -37,7 +35,7 @@ tx_rnbase::load('tx_rnbase_util_Logger');
  * UseCases:
  * get = teamUid -> return a specific team
  * getdefined = cfc1 -> return a specific preconfigured team
- * 
+ *
  * @author Rene Nitzsche
  */
 class tx_t3srest_provider_Teams extends tx_t3rest_provider_AbstractBase {
@@ -46,7 +44,6 @@ class tx_t3srest_provider_Teams extends tx_t3rest_provider_AbstractBase {
 		if($itemUid = $configurations->getParameters()->get('get')) {
 			$confId = $confId.'get.';
 			$team = $this->getItem($itemUid, $configurations, $confId, array(tx_cfcleague_util_ServiceRegistry::getTeamService(),'searchTeams'));
-//			$team = $this->getTeam($teamUid, $configurations, $confId.'get.');
 			$decorator = tx_rnbase::makeInstance('tx_t3srest_decorator_Team');
 			$data = $decorator->prepareItem($team, $configurations, $confId);
 		}
@@ -61,7 +58,7 @@ class tx_t3srest_provider_Teams extends tx_t3rest_provider_AbstractBase {
 	}
 
 	/**
-	 * Lädt ein einzelnes Team. Erwartet wird entweder die TeamUID oder ein 
+	 * Lädt ein einzelnes Team. Erwartet wird entweder die TeamUID oder ein
 	 * Identifier. Letztere muss dann in der Config als Filter konfiguriert sein
 	 *
 	 * @param mixed $teamUid int oder string-Identifier
@@ -95,6 +92,3 @@ class tx_t3srest_provider_Teams extends tx_t3rest_provider_AbstractBase {
 
 }
 
-if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/t3srest/provider/class.tx_t3srest_provider_Teams.php']) {
-	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/t3srest/provider/class.tx_t3srest_provider_Teams.php']);
-}

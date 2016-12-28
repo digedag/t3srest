@@ -2,7 +2,7 @@
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2012 Rene Nitzsche
+ *  (c) 2012-2016 Rene Nitzsche
  *  Contact: rene@system25.de
  *  All rights reserved
  *
@@ -21,13 +21,11 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  ***************************************************************/
 
-require_once(t3lib_extMgm::extPath('rn_base') . 'class.tx_rnbase.php');
-
 tx_rnbase::load('tx_t3rest_decorator_Base');
 
 /**
  * Sammelt zusätzliche Daten
- * 
+ *
  * @author Rene Nitzsche
  */
 class tx_t3srest_decorator_MatchNote extends tx_t3rest_decorator_Base {
@@ -47,6 +45,3 @@ class tx_t3srest_decorator_MatchNote extends tx_t3rest_decorator_Base {
 	}
 }
 
-if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/t3srest/provider/class.tx_t3srest_decorator_Team.php']) {
-	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/t3srest/provider/class.tx_t3srest_decorator_Team.php']);
-}

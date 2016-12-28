@@ -2,7 +2,7 @@
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2012 Rene Nitzsche
+ *  (c) 2012-2016 Rene Nitzsche
  *  Contact: rene@system25.de
  *  All rights reserved
  *
@@ -21,7 +21,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  ***************************************************************/
 
-require_once(t3lib_extMgm::extPath('rn_base') . 'class.tx_rnbase.php');
 
 tx_rnbase::load('tx_t3rest_models_Provider');
 tx_rnbase::load('tx_t3rest_provider_AbstractBase');
@@ -37,7 +36,7 @@ tx_rnbase::load('tx_rnbase_util_Logger');
  * UseCases:
  * get = teamUid -> return a specific team
  * getdefined = cfc1 -> return a specific preconfigured team
- * 
+ *
  * @author Rene Nitzsche
  */
 class tx_t3srest_provider_LeagueTable extends tx_t3rest_provider_AbstractBase {
@@ -79,14 +78,14 @@ class tx_t3srest_provider_LeagueTable extends tx_t3rest_provider_AbstractBase {
 			$compId = $configurations->get($confId.'defined.'.$tableAlias.'.competitionSelection');
 			$competition = tx_rnbase::makeInstance('tx_cfcleague_models_Competition', $compId);
 			$ret->competition = $competition;
-	
+
 			$srv = tx_cfcleague_util_ServiceRegistry::getMatchService();
 			$matchTable = $srv->getMatchTableBuilder();
 			$matchTable->setCompetitions($competition->getUid());
 			$matchTable->setStatus('2');
 			$matchTable->getFields($fields, $options);
 			$matches = $srv->search($fields, $options);
-			
+
 			tx_rnbase::load('tx_cfcleaguefe_table_Builder');
 			$table = tx_cfcleaguefe_table_Builder::buildByCompetitionAndMatches($competition, $matches, $configurations, $confId.'defined.'.$tableAlias.'.');
 			$result = $table->getTableData();
@@ -103,9 +102,5 @@ class tx_t3srest_provider_LeagueTable extends tx_t3rest_provider_AbstractBase {
 		}
 		return $ret;
 	}
-
 }
 
-if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/t3srest/provider/class.tx_t3srest_provider_LeagueTable.php']) {
-	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/t3srest/provider/class.tx_t3srest_provider_LeagueTable.php']);
-}

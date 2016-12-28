@@ -21,13 +21,14 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  ***************************************************************/
 
-require_once(t3lib_extMgm::extPath('rn_base') . 'class.tx_rnbase.php');
 
 tx_rnbase::load('tx_t3rest_decorator_Base');
+tx_rnbase::load('Tx_Rnbase_Utility_Strings');
+
 
 /**
  * Sammelt zusätzliche Daten
- * 
+ *
  * @author Rene Nitzsche
  */
 class tx_t3srest_decorator_Team extends tx_t3rest_decorator_Base {
@@ -44,7 +45,7 @@ class tx_t3srest_decorator_Team extends tx_t3rest_decorator_Base {
 
 	/**
 	 * Hinzufügen der Spieler des Teams.
-	 * 
+	 *
 	 * @param tx_cfcleaguefe_models_team $team
 	 * @param tx_rnbase_configurations $configurations
 	 * @param string $confId Config-String für den Wrap der Profile
@@ -53,22 +54,24 @@ class tx_t3srest_decorator_Team extends tx_t3rest_decorator_Base {
 	private function addProfiles($team, $configurations, $confId, $joinCol) {
 		//$srv = tx_cfcleague_util_ServiceRegistry::getProfileService();
 		$srv = tx_cfcleaguefe_util_ServiceRegistry::getProfileService();
-		$fields['PROFILE.UID'][OP_IN_INT] = $team->record[$joinCol];
+		$fields['PROFILE.UID'][OP_IN_INT] = $team->getProperty($joinCol);
 		$options = array();
 		tx_rnbase_util_SearchBase::setConfigFields($fields, $configurations, $confId.'fields.');
 		tx_rnbase_util_SearchBase::setConfigOptions($options, $configurations, $confId.'options.');
 		$children = $srv->search($fields, $options);
 		if(!empty($children) && !array_key_exists('orderby', $options)) // Default sorting
-			$children = $this->sortProfiles($children, $team->record[$joinCol]);
+			$children = $this->sortProfiles($children, $team->getProperty($joinCol));
 
 		$decorator = tx_rnbase::makeInstance('tx_t3srest_decorator_Profile');
 		$decorator->setTeam($team);
+
 
 		$team->$joinCol = array();
 		foreach($children As $child) {
 			$data = $decorator->prepareItem($child, $configurations, $confId);
 			array_push($team->$joinCol,$data);
 		}
+		$team->setProperty($joinCol, $team->$joinCol);
 	}
 	/**
 	 * Sortiert die Profile nach der Reihenfolge im Team
@@ -78,7 +81,7 @@ class tx_t3srest_decorator_Team extends tx_t3rest_decorator_Base {
 	 * @return array
 	 */
 	private function sortProfiles(&$profiles, $sortArr) {
-		$sortArr = array_flip(t3lib_div::intExplode(',', $sortArr));
+		$sortArr = array_flip(Tx_Rnbase_Utility_Strings::intExplode(',', $sortArr));
 		foreach($profiles As $profile)
 			$sortArr[$profile->uid] = $profile;
 		$ret = array();
@@ -97,11 +100,11 @@ class tx_t3srest_decorator_Team extends tx_t3rest_decorator_Base {
 	public static function addLogo($team, $configurations, $confId) {
 		// 1. Bild direkt zugeordnet
 		$pics = tx_t3rest_util_DAM::getDamPictures($team->getUid(), 'tx_cfcleague_teams', 'relation_field_or_other_ident', $configurations, $confId);
-		if(empty($pics) && intval($team->record['logo'])) {
+		if(empty($pics) && intval($team->getProperty('logo'))) {
 			// 2. Schritt Feld logo
 			$picCfg = $configurations->getKeyNames($confId);
-			$media = tx_rnbase::makeInstance('tx_rnbase_model_media', $team->record['logo']);
-			$pic = tx_t3rest_util_DAM::convertDAM2StdClass($media->record, $configurations, $confId, $picCfg);
+			$media = tx_rnbase::makeInstance('tx_rnbase_model_media', $team->getProperty('logo'));
+			$pic = tx_t3rest_util_DAM::convertDAM2StdClass($media->getProperty(), $configurations, $confId, $picCfg);
 			$pics = array($pic);
 		}
 		if(empty($pics) && $team->getClubUid()) {
@@ -111,11 +114,11 @@ class tx_t3srest_decorator_Team extends tx_t3rest_decorator_Base {
 			if(count($pics) > 1)
 				$pics = array($pics[0]);
 		}
-		$team->logo = !empty($pics) ? $pics[0] : null;
+		$team->setProperty('logo', !empty($pics) ? $pics[0] : null);
 	}
 	protected function addPictures($team, $configurations, $confId) {
 		$pics = tx_t3rest_util_DAM::getDamPictures($team->getUid(), 'tx_cfcleague_teams', 'dam_images', $configurations, $confId);
-		$team->pictures = $pics;
+		$team->setProperty('pictures', $pics);
 	}
 
 	/**
@@ -127,8 +130,4 @@ class tx_t3srest_decorator_Team extends tx_t3rest_decorator_Base {
 	protected function getDecoratorId() {
 		return 'team';
 	}
-}
-
-if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/t3srest/provider/class.tx_t3srest_decorator_Team.php']) {
-	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/t3srest/provider/class.tx_t3srest_decorator_Team.php']);
 }

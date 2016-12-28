@@ -21,15 +21,13 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  ***************************************************************/
 
-require_once(t3lib_extMgm::extPath('rn_base') . 'class.tx_rnbase.php');
-
 tx_rnbase::load('tx_t3rest_decorator_Base');
 tx_rnbase::load('tx_t3rest_decorator_Simple');
 tx_rnbase::load('tx_t3rest_util_DAM');
 
 
 /**
- * 
+ *
  * @author Rene Nitzsche
  */
 class tx_t3srest_decorator_Profile extends tx_t3rest_decorator_Base {
@@ -38,7 +36,7 @@ class tx_t3srest_decorator_Profile extends tx_t3rest_decorator_Base {
 	protected function handleItemBefore($item, $configurations, $confId) {
 		if($this->team)
 			$item->addTeamNotes($this->team);
-		
+
 	}
 	protected function handleItemAfter($item, $configurations, $confId) {
 		unset($item->record['dam_images']);
@@ -82,17 +80,18 @@ lib.t3sports.teamnote {
 
 		foreach ($fields As $field) {
 			if(!$fields) continue;
-			$teamNote = tx_rnbase::makeInstance('tx_cfcleague_models_TeamNote', $item->record[$field]);
+			$teamNote = tx_rnbase::makeInstance('tx_cfcleague_models_TeamNote', $item->getProperty($field));
 			// Die TeamNote wird als eigenständiges Objekt ausgeliefert
 			$note = new stdClass();
 			// Die TeamNote enhält erstmal nur die Rohdaten. Bei Bildern müssen diese noch geladen werden.
 			if($teamNote && $teamNote->isValid()) {
 				$note->uid = $teamNote->getUid();
-				$note->tstamp = $teamNote->record['tstamp'];
+				$note->tstamp = $teamNote->getProperty('tstamp');
 				$note->type = $teamNote->getMediaType();
 				// Typ ermitteln
 				if($teamNote->getMediaType() == 1) { // DAM-Reference
-					$pics = tx_t3rest_util_DAM::getDamPictures($teamNote->getUid(), 'tx_cfcleague_team_notes', 'media', $configurations, $confId.$field.'.');
+					$pics = tx_t3rest_util_DAM::getDamPictures($teamNote->getUid(),
+							'tx_cfcleague_team_notes', 'media', $configurations, $confId.$field.'.');
 					//					$item->record[$field] = !empty($pics) ? $pics[0] : new stdClass();
 					if(!empty($pics))
 						$note->media = $pics[0];
@@ -108,13 +107,13 @@ lib.t3sports.teamnote {
 // 					$note->media = new stdClass()
 			}
 
-			$item->record[$field] = $note;
+			$item->setProperty($field, $note);
 			unset($item->record[$field.'_type']); // Dynamische Typen sind nicht notwendig
 		}
 	}
 	protected function addPictures($item, $configurations, $confId) {
 		$pics = tx_t3rest_util_DAM::getDamPictures($item->getUid(), 'tx_cfcleague_profiles', 'dam_images', $configurations, $confId);
-		$item->pictures = $pics;
+		$item->setProperty(pictures, $pics);
 	}
 
 	/**
@@ -135,6 +134,3 @@ lib.t3sports.teamnote {
 	}
 }
 
-if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/t3srest/provider/class.tx_t3srest_decorator_Profile.php']) {
-	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/t3srest/provider/class.tx_t3srest_decorator_Profile.php']);
-}
