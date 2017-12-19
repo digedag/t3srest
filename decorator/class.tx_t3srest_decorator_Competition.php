@@ -2,7 +2,7 @@
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2012-2016 Rene Nitzsche
+ *  (c) 2012-2017 Rene Nitzsche
  *  Contact: rene@system25.de
  *  All rights reserved
  *
@@ -40,13 +40,13 @@ class tx_t3srest_decorator_Competition extends tx_t3rest_decorator_Base {
 	/**
 	 * Team ein Logo zuordnen
 	 *
-	 * @param tx_cfcleague_models_Team $team
+	 * @param tx_cfcleague_models_Competition $team
 	 * @param tx_rnbase_configurations $configurations
 	 * @param string $confId
 	 */
 	public static function addLogo($item, $configurations, $confId) {
 		// 1. Bild direkt zugeordnet
-		$pics = tx_t3rest_util_DAM::getDamPictures($item->getUid(), 'tx_cfcleague_competition', 'logo', $configurations, $confId);
+		$pics = tx_t3srest_util_FAL::getFalPictures($item->getUid(), 'tx_cfcleague_competition', 'logo', $configurations, $confId);
 		$item->setProperty('logo', !empty($pics) ? $pics[0] : null);
 	}
 

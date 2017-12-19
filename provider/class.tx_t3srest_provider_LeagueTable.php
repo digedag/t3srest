@@ -26,7 +26,7 @@ tx_rnbase::load('tx_t3rest_models_Provider');
 tx_rnbase::load('tx_t3rest_provider_AbstractBase');
 tx_rnbase::load('tx_t3rest_util_Objects');
 tx_rnbase::load('tx_rnbase_filter_BaseFilter');
-tx_rnbase::load('tx_t3rest_util_DAM');
+tx_rnbase::load('tx_t3srest_util_FAL');
 tx_rnbase::load('tx_rnbase_util_Logger');
 
 

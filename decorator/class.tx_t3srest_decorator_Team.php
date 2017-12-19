@@ -99,17 +99,17 @@ class tx_t3srest_decorator_Team extends tx_t3rest_decorator_Base {
 	 */
 	public static function addLogo($team, $configurations, $confId) {
 		// 1. Bild direkt zugeordnet
-		$pics = tx_t3rest_util_DAM::getDamPictures($team->getUid(), 'tx_cfcleague_teams', 'relation_field_or_other_ident', $configurations, $confId);
+	    $pics = tx_t3srest_util_FAL::getFalPictures($team->getUid(), 'tx_cfcleague_teams', 'logo', $configurations, $confId);
 		if(empty($pics) && intval($team->getProperty('logo'))) {
 			// 2. Schritt Feld logo
 			$picCfg = $configurations->getKeyNames($confId);
 			$media = tx_rnbase::makeInstance('tx_rnbase_model_media', $team->getProperty('logo'));
-			$pic = tx_t3rest_util_DAM::convertDAM2StdClass($media->getProperty(), $configurations, $confId, $picCfg);
+			$pic = tx_t3srest_util_FAL::convertFal2StdClass($media->getProperty(), $configurations, $confId, $picCfg);
 			$pics = array($pic);
 		}
 		if(empty($pics) && $team->getClubUid()) {
 			// 3. Schritt
-			$pics = tx_t3rest_util_DAM::getDamPictures($team->getClubUid(), 'tx_cfcleague_club', 'dam_images', $configurations, $confId);
+		    $pics = tx_t3srest_util_FAL::getFalPictures($team->getClubUid(), 'tx_cfcleague_club', 'logo', $configurations, $confId);
 			// Am Club können mehrere Logos hängen. Wir nehmen nur das erste
 			if(count($pics) > 1)
 				$pics = array($pics[0]);
@@ -117,7 +117,7 @@ class tx_t3srest_decorator_Team extends tx_t3rest_decorator_Base {
 		$team->setProperty('logo', !empty($pics) ? $pics[0] : null);
 	}
 	protected function addPictures($team, $configurations, $confId) {
-		$pics = tx_t3rest_util_DAM::getDamPictures($team->getUid(), 'tx_cfcleague_teams', 'dam_images', $configurations, $confId);
+	    $pics = tx_t3srest_util_FAL::getFalPictures($team->getUid(), 'tx_cfcleague_teams', 't3images', $configurations, $confId);
 		$team->setProperty('pictures', $pics);
 	}
 

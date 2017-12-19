@@ -90,7 +90,7 @@ lib.t3sports.teamnote {
 				$note->type = $teamNote->getMediaType();
 				// Typ ermitteln
 				if($teamNote->getMediaType() == 1) { // DAM-Reference
-					$pics = tx_t3rest_util_DAM::getDamPictures($teamNote->getUid(),
+				    $pics = tx_t3srest_util_FAL::getFalPictures($teamNote->getUid(),
 							'tx_cfcleague_team_notes', 'media', $configurations, $confId.$field.'.');
 					//					$item->record[$field] = !empty($pics) ? $pics[0] : new stdClass();
 					if(!empty($pics))
@@ -112,7 +112,7 @@ lib.t3sports.teamnote {
 		}
 	}
 	protected function addPictures($item, $configurations, $confId) {
-		$pics = tx_t3rest_util_DAM::getDamPictures($item->getUid(), 'tx_cfcleague_profiles', 'dam_images', $configurations, $confId);
+	    $pics = tx_t3srest_util_FAL::getFalPictures($item->getUid(), 'tx_cfcleague_profiles', 't3images', $configurations, $confId);
 		$item->setProperty(pictures, $pics);
 	}
 

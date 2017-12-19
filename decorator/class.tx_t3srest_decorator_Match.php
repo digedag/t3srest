@@ -130,7 +130,7 @@ class tx_t3srest_decorator_Match extends tx_t3rest_decorator_Base {
 		$item->setProperty('competition', $decorator->prepareItem($comp, $configurations, $confId));
 	}
 	protected function addPictures($item, $configurations, $confId) {
-		$pics = tx_t3rest_util_DAM::getDamPictures($item->getUid(), 'tx_cfcleague_games', 'dam_images', $configurations, $confId);
+	    $pics = tx_t3srest_util_FAL::getFalPictures($item->getUid(), 'tx_cfcleague_games', 't3images', $configurations, $confId);
 		$item->setProperty('pictures', $pics);
 	}
 
