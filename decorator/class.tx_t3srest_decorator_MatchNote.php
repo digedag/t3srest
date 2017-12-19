@@ -2,7 +2,7 @@
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2012-2016 Rene Nitzsche
+ *  (c) 2012-2017 Rene Nitzsche
  *  Contact: rene@system25.de
  *  All rights reserved
  *
@@ -20,7 +20,6 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  ***************************************************************/
-
 tx_rnbase::load('tx_t3rest_decorator_Base');
 
 /**
@@ -28,20 +27,26 @@ tx_rnbase::load('tx_t3rest_decorator_Base');
  *
  * @author Rene Nitzsche
  */
-class tx_t3srest_decorator_MatchNote extends tx_t3rest_decorator_Base {
-	protected static $externals = array('profile');
+class tx_t3srest_decorator_MatchNote extends tx_t3rest_decorator_Base
+{
 
-	protected function addProfiles($item, $configurations, $confId) {
-	}
+    protected static $externals = array(
+        'profile'
+    );
 
-	/**
-	 * @overwrite
-	 */
-	protected function getExternals() {
-		return self::$externals;
-	}
-	protected function getDecoratorId() {
-		return 'matchnote';
-	}
+    protected function addProfiles($item, $configurations, $confId)
+    {}
+
+    /**
+     * @overwrite
+     */
+    protected function getExternals()
+    {
+        return self::$externals;
+    }
+
+    protected function getDecoratorId()
+    {
+        return 'matchnote';
+    }
 }
-

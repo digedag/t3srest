@@ -2,7 +2,7 @@
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2012 Rene Nitzsche
+ *  (c) 2012-2017 Rene Nitzsche
  *  Contact: rene@system25.de
  *  All rights reserved
  *
@@ -20,11 +20,9 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  ***************************************************************/
-
 tx_rnbase::load('tx_t3rest_models_Provider');
 tx_rnbase::load('tx_t3rest_provider_AbstractBase');
 tx_rnbase::load('tx_t3rest_util_Objects');
-
 
 /**
  * This is a sample REST provider for MatchNotes.
@@ -33,42 +31,53 @@ tx_rnbase::load('tx_t3rest_util_Objects');
  *
  * @author Rene Nitzsche
  */
-class tx_t3srest_provider_MatchNotes extends tx_t3rest_provider_AbstractBase {
+class tx_t3srest_provider_MatchNotes extends tx_t3rest_provider_AbstractBase
+{
 
-	protected function handleRequest($configurations, $confId) {
-		if($itemUid = $configurations->getParameters()->get('get')) {
-			$confId = $confId.'get.';
-			$item = $this->getItem($itemUid, $configurations, $confId, array(tx_cfcleague_util_ServiceRegistry::getMatchService(),'search'));
-			// Zu dem Spiel werden nun die eigentlichen MatchNotes geladen
-			// Wir holen immer alle Notes, weil die Daten korrekt aufgebaut werden müssen
-			// FIXME: das Spiel nochmal über die alte API laden, um an die MatchNotes zu kommen
-			$match = tx_rnbase::makeInstance('tx_cfcleaguefe_models_match', $item->getProperty());
-			tx_rnbase::load('tx_cfcleaguefe_util_MatchTicker');
-			$matchNotes =& tx_cfcleaguefe_util_MatchTicker::getTicker4Match($match);
-			if($configurations->get($confId.'sorting') != 'asc')
-				$matchNotes = array_reverse($matchNotes);
-			$data = array();
-			$decorator = tx_rnbase::makeInstance('tx_t3srest_decorator_MatchNote');
-			$minMinute = $configurations->getParameters()->getInt('minute');
-			foreach($matchNotes As $note) {
-				if(intval($note->getProperty('minute')) < $minMinute)
-					continue;
-				unset($note->match);
-				$data[] = $decorator->prepareItem($note, $configurations, $confId);
-			}
-		}
-		return $data;
-	}
+    protected function handleRequest($configurations, $confId)
+    {
+        if ($itemUid = $configurations->getParameters()->get('get')) {
+            $confId = $confId . 'get.';
+            $item = $this->getItem($itemUid, $configurations, $confId, array(
+                tx_cfcleague_util_ServiceRegistry::getMatchService(),
+                'search'
+            ));
+            // Zu dem Spiel werden nun die eigentlichen MatchNotes geladen
+            // Wir holen immer alle Notes, weil die Daten korrekt aufgebaut werden müssen
+            // FIXME: das Spiel nochmal über die alte API laden, um an die MatchNotes zu kommen
+            $match = tx_rnbase::makeInstance('tx_cfcleaguefe_models_match', $item->getProperty());
+            tx_rnbase::load('tx_cfcleaguefe_util_MatchTicker');
+            $matchNotes = & tx_cfcleaguefe_util_MatchTicker::getTicker4Match($match);
+            if ($configurations->get($confId . 'sorting') != 'asc')
+                $matchNotes = array_reverse($matchNotes);
+            $data = array();
+            $decorator = tx_rnbase::makeInstance('tx_t3srest_decorator_MatchNote');
+            $minMinute = $configurations->getParameters()->getInt('minute');
+            foreach ($matchNotes as $note) {
+                if (intval($note->getProperty('minute')) < $minMinute) {
+                    continue;
+                }
+                unset($note->match);
+                $data[] = $decorator->prepareItem($note, $configurations, $confId);
+            }
+        }
+        return $data;
+    }
 
-	public function loadItem($item) {
-		//
-		$data = $this->decorator->prepareItem($item, $this->configurations, $this->confId);
-		$this->items[] = $data;
-	}
-	protected function getBaseClass() {
-		return 'tx_cfcleague_models_Match';
-	}
-	protected function getConfId() {
-		return 'matchnote.';
-	}
+    public function loadItem($item)
+    {
+        //
+        $data = $this->decorator->prepareItem($item, $this->configurations, $this->confId);
+        $this->items[] = $data;
+    }
+
+    protected function getBaseClass()
+    {
+        return 'tx_cfcleague_models_Match';
+    }
+
+    protected function getConfId()
+    {
+        return 'matchnote.';
+    }
 }
