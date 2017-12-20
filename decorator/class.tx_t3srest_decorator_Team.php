@@ -22,6 +22,8 @@
  ***************************************************************/
 tx_rnbase::load('tx_t3rest_decorator_Base');
 tx_rnbase::load('Tx_Rnbase_Utility_Strings');
+tx_rnbase::load('tx_t3srest_util_FAL');
+
 
 /**
  * Sammelt zusätzliche Daten
