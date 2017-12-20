@@ -43,8 +43,8 @@ class tx_t3srest_util_FAL
         tx_rnbase::load('tx_rnbase_util_TSFAL');
         $ret = [];
         $files = tx_rnbase_util_TSFAL::fetchFiles($refTable, $refUid, $refField);
-        foreach ($files['rows'] as $uid => $record) {
-            $ret[] = self::convertFal2StdClass($record, $configurations, $confId, $picCfg, $fields);
+        foreach ($files as $uid => $media) {
+            $ret[] = self::convertFal2StdClass($media->getProperty(), $configurations, $confId, $picCfg, $fields);
         }
         return $ret;
     }
