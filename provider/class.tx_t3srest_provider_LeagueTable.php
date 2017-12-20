@@ -44,7 +44,7 @@ class tx_t3srest_provider_LeagueTable extends tx_t3rest_provider_AbstractBase
             $tableData = $this->getLeagueTable($tableAlias, $configurations, $confId . 'get.');
             if ($tableData) {
                 // $data = $tableData->rounds;
-                $data->rounds = $tableData->rounds;
+                $data->rounds = isset($tableData->rounds) ? $tableData->rounds : [];
                 $decorator = tx_rnbase::makeInstance('tx_t3srest_decorator_Competition');
                 $data->competition = $decorator->prepareItem($tableData->competition, $configurations, $confId . 'get.defined.' . $tableAlias . '.competition.');
             }
