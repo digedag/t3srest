@@ -23,6 +23,8 @@
 tx_rnbase::load('tx_t3rest_decorator_Base');
 tx_rnbase::load('Tx_Rnbase_Utility_Strings');
 tx_rnbase::load('tx_t3srest_util_FAL');
+tx_rnbase::load('tx_rnbase_util_TSFAL');
+
 
 
 /**
@@ -80,7 +82,7 @@ class tx_t3srest_decorator_Team extends tx_t3rest_decorator_Base
         }
         $decorator = tx_rnbase::makeInstance('tx_t3srest_decorator_Profile');
         $decorator->setTeam($team);
-        
+
         $team->$joinCol = array();
         foreach ($children as $child) {
             $data = $decorator->prepareItem($child, $configurations, $confId);
@@ -123,9 +125,16 @@ class tx_t3srest_decorator_Team extends tx_t3rest_decorator_Base
         if (empty($pics) && intval($team->getProperty('logo'))) {
             // 2. Schritt Feld logo
             $picCfg = $configurations->getKeyNames($confId);
-            $media = tx_rnbase::makeInstance('tx_rnbase_model_media', $team->getProperty('logo'));
-            $pic = tx_t3srest_util_FAL::convertFal2StdClass($media->getProperty(), $configurations, $confId, $picCfg);
-            $pics = [$pic];
+            $refUid = $team->getProperty('logo');
+
+            $fileRef = tx_rnbase_util_TSFAL::getFileReferenceById($refUid);
+            if($fileRef && $fileRef->getOriginalFile()) {
+                /* @var $fileObject \TYPO3\CMS\Core\Resource\File */
+                $fileObject = $fileRef->getOriginalFile();
+                $media = tx_rnbase::makeInstance('tx_rnbase_model_media', $fileObject);
+                $pic = tx_t3srest_util_FAL::convertFal2StdClass($media->getProperty(), $configurations, $confId, $picCfg);
+                $pics = [$pic];
+            }
         }
         if (empty($pics) && $team->getClubUid()) {
             // 3. Schritt
