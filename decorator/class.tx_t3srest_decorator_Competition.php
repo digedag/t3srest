@@ -2,7 +2,7 @@
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2012-2017 Rene Nitzsche
+ *  (c) 2012-2018 Rene Nitzsche
  *  Contact: rene@system25.de
  *  All rights reserved
  *
@@ -41,7 +41,7 @@ class tx_t3srest_decorator_Competition extends tx_t3rest_decorator_Base
     // exit();
     // return $ret;
     // }
-    
+
     /**
      * Team ein Logo zuordnen
      *
@@ -56,14 +56,15 @@ class tx_t3srest_decorator_Competition extends tx_t3rest_decorator_Base
         $item->setProperty('logo', ! empty($pics) ? $pics[0] : null);
     }
 
-    protected function getIgnoreFields()
+    protected function getIgnoreFields($configurations, $confId)
     {
-        if (! self::$ignoreFields)
+        if (! self::$ignoreFields) {
             self::$ignoreFields = array_merge(tx_t3rest_util_Objects::getIgnoreFields(), array(
                 'match_keys',
                 'teams',
                 'internal_name'
             ));
+        }
         return self::$ignoreFields;
     }
 

@@ -2,7 +2,7 @@
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2012-2017 Rene Nitzsche
+ *  (c) 2012-2018 Rene Nitzsche
  *  Contact: rene@system25.de
  *  All rights reserved
  *
@@ -45,7 +45,7 @@ class tx_t3srest_decorator_Match extends tx_t3rest_decorator_Base
      */
     public static function addMatchnotes($item, $configurations, $confId)
     {
-        
+
         // FIXME: das Spiel nochmal über die alte API laden, um an die MatchNotes zu kommen
         $match = tx_rnbase::makeInstance('tx_cfcleaguefe_models_match', $item->getProperty());
         tx_rnbase::load('tx_cfcleaguefe_util_MatchTicker');
@@ -65,7 +65,7 @@ class tx_t3srest_decorator_Match extends tx_t3rest_decorator_Base
         $playersGuest = array();
         $substitutesHome = array();
         $substitutesGuest = array();
-        
+
         $decorator = tx_rnbase::makeInstance('tx_t3srest_decorator_Profile');
         // FIXME: das Spiel nochmal über die alte API laden, um an die MatchNotes zu kommen
         $match = tx_rnbase::makeInstance('tx_cfcleaguefe_models_match', $item->getProperty());
@@ -74,20 +74,20 @@ class tx_t3srest_decorator_Match extends tx_t3rest_decorator_Base
             $playersHome[] = $decorator->prepareItem($profile, $configurations, $confId);
         }
         $item->setProperty('playersHome', $playersHome);
-        
+
         $profiles = $match->getPlayersGuest();
         foreach ($profiles as $profile) {
             $item->playersGuest[] = $decorator->prepareItem($profile, $configurations, $confId);
             $playersGuest[] = $decorator->prepareItem($profile, $configurations, $confId);
         }
         $item->setProperty('playersGuest', $playersGuest);
-        
+
         $profiles = $match->getSubstitutesHome();
         foreach ($profiles as $profile) {
             $substitutesHome[] = $decorator->prepareItem($profile, $configurations, $confId);
         }
         $item->setProperty('substitutesHome', $substitutesHome);
-        
+
         $profiles = $match->getSubstitutesGuest();
         foreach ($profiles as $profile) {
             $substitutesGuest[] = $decorator->prepareItem($profile, $configurations, $confId);
@@ -175,7 +175,7 @@ class tx_t3srest_decorator_Match extends tx_t3rest_decorator_Base
     {
         unset($item->_teamHome);
         unset($item->_teamGuest);
-        
+
         if (! ($item->competition instanceof stdClass))
             unset($item->competition);
     }
