@@ -1,0 +1,37 @@
+{
+	"name" : "digedag/t3srest",
+	"description" : "Extends t3rest for t3sports classes.",
+	"type" : "typo3-cms-extension",
+	"keywords" : [
+		"TYPO3 CMS",
+		"t3sports"
+	],
+	"homepage" : "http://www.system25.de/",
+	"license" : "GPL-2.0-or-later",
+	"authors" : [{
+			"name" : "René Nitzsche",
+			"email" : "rene@system25.de",
+			"role" : "Developer"
+		}
+	],
+	"support" : {
+		"email" : "rene@system25.de",
+		"source" : "https://github.com/digedag/t3srest",
+		"issues" : "https://github.com/digedag/t3srest/issues"
+	},
+	"replace" : {
+		"t3srest" : "self.version",
+		"typo3-ter/t3srest" : "self.version"
+	},
+	"require" : {
+		"typo3/cms-core" : ">=7.6.0 <=8.7.99",
+		"digedag/rn-base" : ">=1.8.0"
+	},
+	"autoload" : {
+		"classmap" : [
+			"decorator/",
+			"provider/",
+			"util/"
+		]
+	}
+}
