@@ -34,12 +34,12 @@ class tx_t3srest_util_FAL
     {
         $picCfg = $configurations->getKeyNames($confId);
         if (empty($fields))
-            $fields = array(
+            $fields = [
                 'uid',
                 'title',
                 'file_hash',
                 'tstamp'
-            );
+            ];
         tx_rnbase::load('tx_rnbase_util_TSFAL');
         $ret = [];
         $files = tx_rnbase_util_TSFAL::fetchFiles($refTable, $refUid, $refField);
@@ -52,16 +52,16 @@ class tx_t3srest_util_FAL
     public static function convertFal2StdClass($record, $configurations, $confId, $picCfg, $fields = array())
     {
         if (empty($fields))
-            $fields = array(
+            $fields = [
                 'uid',
                 'title',
                 'file_hash',
                 'tstamp'
-            );
+            ];
         $data = new stdClass();
         $filepath = $record['file_path'] . $record['file_name'];
         $data->filepath = $filepath;
-        $server = t3lib_div::getIndpEnv('TYPO3_SITE_URL');
+        $server = \tx_rnbase_util_Misc::getIndpEnv('TYPO3_SITE_URL');
         $data->absFilepath = $server . $filepath;
         $record['file'] = $filepath;
         // Bild skalieren
