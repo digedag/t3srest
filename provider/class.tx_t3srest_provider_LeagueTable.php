@@ -1,4 +1,6 @@
 <?php
+use System25\T3sports\Table\Builder;
+
 /***************************************************************
  *  Copyright notice
  *
@@ -81,16 +83,16 @@ class tx_t3srest_provider_LeagueTable extends tx_t3rest_provider_AbstractBase
             $compId = $configurations->get($confId . 'defined.' . $tableAlias . '.competitionSelection');
             $competition = tx_rnbase::makeInstance('tx_cfcleague_models_Competition', $compId);
             $ret->competition = $competition;
-            
+
+            $fields = $options = [];
             $srv = tx_cfcleague_util_ServiceRegistry::getMatchService();
             $matchTable = $srv->getMatchTableBuilder();
             $matchTable->setCompetitions($competition->getUid());
             $matchTable->setStatus('2');
             $matchTable->getFields($fields, $options);
             $matches = $srv->search($fields, $options);
-            
-            tx_rnbase::load('tx_cfcleaguefe_table_Builder');
-            $table = tx_cfcleaguefe_table_Builder::buildByCompetitionAndMatches($competition, $matches, $configurations, $confId . 'defined.' . $tableAlias . '.');
+
+            $table = Builder::buildByCompetitionAndMatches($competition, $matches, $configurations, $confId . 'defined.' . $tableAlias . '.');
             $result = $table->getTableData();
             $rounds = array();
             for ($i = 1, $max = $result->getRoundSize(); $i <= $max; $i ++) {
