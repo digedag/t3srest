@@ -2,7 +2,7 @@
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2012-2018 Rene Nitzsche
+ *  (c) 2012-2021 Rene Nitzsche
  *  Contact: rene@system25.de
  *  All rights reserved
  *
@@ -20,8 +20,6 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  ***************************************************************/
-tx_rnbase::load('tx_t3rest_decorator_Base');
-tx_rnbase::load('tx_t3srest_util_FAL');
 
 /**
  * Sammelt zusätzliche Daten
@@ -48,7 +46,6 @@ class tx_t3srest_decorator_Match extends tx_t3rest_decorator_Base
 
         // FIXME: das Spiel nochmal über die alte API laden, um an die MatchNotes zu kommen
         $match = tx_rnbase::makeInstance('tx_cfcleaguefe_models_match', $item->getProperty());
-        tx_rnbase::load('tx_cfcleaguefe_util_MatchTicker');
         $matchNotes = & tx_cfcleaguefe_util_MatchTicker::getTicker4Match($match);
         $notes = array();
         $decorator = tx_rnbase::makeInstance('tx_t3srest_decorator_MatchNote');
@@ -144,6 +141,13 @@ class tx_t3srest_decorator_Match extends tx_t3rest_decorator_Base
         // Der Wettbewerb sollte Schon vorhanden sein
         $decorator = tx_rnbase::makeInstance('tx_t3srest_decorator_Competition');
         $comp = $item->getCompetition();
+
+        if(is_object($comp->getProperty('logo'))) {
+            // Already processed!
+            $item->setProperty('competition', $comp);
+            return ;
+        }
+
         $item->setProperty('competition', $decorator->prepareItem($comp, $configurations, $confId));
     }
 
