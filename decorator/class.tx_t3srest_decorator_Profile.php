@@ -1,4 +1,12 @@
 <?php
+use Sys25\RnBase\Utility\Strings;
+use System25\T3sports\Model\Team;
+use System25\T3sports\Decorator\TeamNoteDecorator;
+use System25\T3sports\Model\Repository\TeamNoteRepository;
+use System25\T3sports\Model\Profile;
+use Sys25\RnBase\Configuration\ConfigurationInterface;
+use System25\T3sports\Model\TeamNote;
+
 /***************************************************************
  *  Copyright notice
  *
@@ -20,10 +28,6 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  ***************************************************************/
-tx_rnbase::load('tx_t3rest_decorator_Base');
-tx_rnbase::load('tx_t3rest_decorator_Simple');
-tx_rnbase::load('tx_t3srest_util_FAL');
-tx_rnbase::load('Tx_Rnbase_Utility_Strings');
 
 
 /**
@@ -32,26 +36,46 @@ tx_rnbase::load('Tx_Rnbase_Utility_Strings');
  */
 class tx_t3srest_decorator_Profile extends tx_t3rest_decorator_Base
 {
+    private $tnDecorator;
+    private $team;
 
-    protected static $externals = array(
+    protected static $externals = [
         'pictures',
         'teamnotes'
-    );
+    ];
+
+    public function __construct()
+    {
+        $this->tnDecorator = new TeamNoteDecorator(new TeamNoteRepository());
+    }
 
     protected function handleItemBefore($item, $configurations, $confId)
     {
-        if ($this->team)
+        if ($this->team) {
             $item->addTeamNotes($this->team);
+        }
     }
 
+    /**
+     *
+     * @param Profile $item
+     * @param ConfigurationInterface $configurations
+     * @param string $confId
+     */
     protected function handleItemAfter($item, $configurations, $confId)
     {
-        unset($item->record['dam_images']);
+        $item->unsProperty('dam_images');
     }
 
+    /**
+     *
+     * @param Profile $item
+     * @param ConfigurationInterface $configurations
+     * @param string $confId
+     */
     protected function addTeamnotes($item, $configurations, $confId)
     {
-        
+
         // Reimplementierung der TS-Config
         /*
          * # tnposition =< lib.t3sports.teamnote
@@ -80,18 +104,19 @@ class tx_t3srest_decorator_Profile extends tx_t3rest_decorator_Base
         // Alle tn suchen??
         // $confId = players.record.externals.teamnotes.
         // Eventuell schon im TeamDeco setzen:
-        $fields = Tx_Rnbase_Utility_Strings::trimExplode(',', $configurations->get($confId . 'fields'));
+        $this->tnDecorator->addTeamNotes($item, $this->team);
+
+        $fields = Strings::trimExplode(',', $configurations->get($confId . 'fields'));
         // if($item->uid == 1954){
         // t3lib_div::debug($fields, $confId.'fields'.'_type'.' - tx_t3srest_decorator_Profile Line: '.__LINE__); // TODO: remove me
         // t3lib_div::debug($item, $field.'_type'.' - tx_t3srest_decorator_Profile Line: '.__LINE__); // TODO: remove me
         // exit();
         // }
-        
         foreach ($fields as $field) {
-            if (! $fields) {
+            if (! $field) {
                 continue;
             }
-            $teamNote = tx_rnbase::makeInstance('tx_cfcleague_models_TeamNote', $item->getProperty($field));
+            $teamNote = tx_rnbase::makeInstance(TeamNote::class, $item->getProperty($field));
             // Die TeamNote wird als eigenständiges Objekt ausgeliefert
             $note = new stdClass();
             // Die TeamNote enhält erstmal nur die Rohdaten. Bei Bildern müssen diese noch geladen werden.
@@ -102,21 +127,19 @@ class tx_t3srest_decorator_Profile extends tx_t3rest_decorator_Base
                 // Typ ermitteln
                 if ($teamNote->getMediaType() == 1) { // DAM-Reference
                     $pics = tx_t3srest_util_FAL::getFalPictures($teamNote->getUid(), 'tx_cfcleague_team_notes', 'media', $configurations, $confId . $field . '.');
-                    // $item->record[$field] = !empty($pics) ? $pics[0] : new stdClass();
                     if (! empty($pics))
                         $note->media = $pics[0];
                 } else {
                     $note->value = $teamNote->getValue();
-                    // $item->record[$field] = $teamNote->getValue();
                 }
             } else {
-                // $item->record[$field] = $field == 'tnpicture' ? new stdClass() : ''; // TeamNote ist ungültig
+                // $item    [$field] = $field == 'tnpicture' ? new stdClass() : ''; // TeamNote ist ungültig
                 // if($field == 'tnpicture') // JSON erwartet ein Objekt
                 // $note->media = new stdClass()
             }
-            
+
             $item->setProperty($field, $note);
-            unset($item->record[$field . '_type']); // Dynamische Typen sind nicht notwendig
+            $item->unsProperty($field . '_type'); // Dynamische Typen sind nicht notwendig
         }
     }
 
@@ -128,8 +151,8 @@ class tx_t3srest_decorator_Profile extends tx_t3rest_decorator_Base
 
     /**
      * Wenn gesetzt, können die TeamNotes geladen werden.
-     * 
-     * @param tx_cfcleague_models_Team $team
+     *
+     * @param Team $team
      */
     public function setTeam($team)
     {

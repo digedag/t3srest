@@ -1,4 +1,6 @@
 <?php
+use System25\T3sports\Model\Competition;
+
 /***************************************************************
  *  Copyright notice
  *
@@ -20,8 +22,6 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  ***************************************************************/
-tx_rnbase::load('tx_t3rest_decorator_Base');
-tx_rnbase::load('tx_t3srest_util_FAL');
 
 /**
  * Sammelt zusätzliche Daten
@@ -45,7 +45,7 @@ class tx_t3srest_decorator_Competition extends tx_t3rest_decorator_Base
     /**
      * Team ein Logo zuordnen
      *
-     * @param tx_cfcleague_models_Competition $team
+     * @param Competition $item
      * @param tx_rnbase_configurations $configurations
      * @param string $confId
      */

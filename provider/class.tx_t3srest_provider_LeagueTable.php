@@ -1,5 +1,8 @@
 <?php
 use System25\T3sports\Table\Builder;
+use System25\T3sports\Utility\ServiceRegistry;
+use System25\T3sports\Model\Team;
+use System25\T3sports\Model\Competition;
 
 /***************************************************************
  *  Copyright notice
@@ -22,12 +25,6 @@ use System25\T3sports\Table\Builder;
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  ***************************************************************/
-tx_rnbase::load('tx_t3rest_models_Provider');
-tx_rnbase::load('tx_t3rest_provider_AbstractBase');
-tx_rnbase::load('tx_t3rest_util_Objects');
-tx_rnbase::load('tx_rnbase_filter_BaseFilter');
-tx_rnbase::load('tx_t3srest_util_FAL');
-tx_rnbase::load('tx_rnbase_util_Logger');
 
 /**
  * This is a sample REST provider for T3sports teams
@@ -62,16 +59,15 @@ class tx_t3srest_provider_LeagueTable extends tx_t3rest_provider_AbstractBase
 
     protected function getBaseClass()
     {
-        return 'tx_cfcleague_models_Team';
+        return Team::class;
     }
 
     /**
      * Lädt eine Ligatabelle.
      * Der Wettbewerb muss explizit gesetzt sein
      *
-     * @param string $tableAlias
-     *            string-Identifier
-     * @return tx_cfcleague_models_Team
+     * @param string $tableAlias string-Identifier
+     * @return Team
      */
     private function getLeagueTable($tableAlias, $configurations, $confId)
     {
@@ -81,11 +77,11 @@ class tx_t3srest_provider_LeagueTable extends tx_t3rest_provider_AbstractBase
         if (in_array($tableAlias, $defined)) {
             $ret = new stdClass();
             $compId = $configurations->get($confId . 'defined.' . $tableAlias . '.competitionSelection');
-            $competition = tx_rnbase::makeInstance('tx_cfcleague_models_Competition', $compId);
+            $competition = tx_rnbase::makeInstance(Competition::class, $compId);
             $ret->competition = $competition;
 
             $fields = $options = [];
-            $srv = tx_cfcleague_util_ServiceRegistry::getMatchService();
+            $srv = ServiceRegistry::getMatchService();
             $matchTable = $srv->getMatchTableBuilder();
             $matchTable->setCompetitions($competition->getUid());
             $matchTable->setStatus('2');
@@ -94,7 +90,7 @@ class tx_t3srest_provider_LeagueTable extends tx_t3rest_provider_AbstractBase
 
             $table = Builder::buildByCompetitionAndMatches($competition, $matches, $configurations, $confId . 'defined.' . $tableAlias . '.');
             $result = $table->getTableData();
-            $rounds = array();
+            $rounds = [];
             for ($i = 1, $max = $result->getRoundSize(); $i <= $max; $i ++) {
                 $score = $result->getScores($i);
                 for ($t = 0; $t < count($score); $t ++) {

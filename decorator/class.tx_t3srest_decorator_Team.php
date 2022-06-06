@@ -1,4 +1,10 @@
 <?php
+use System25\T3sports\Utility\ServiceRegistry;
+use Sys25\RnBase\Search\SearchBase;
+use System25\T3sports\Model\Team;
+use Sys25\RnBase\Utility\Strings;
+use Sys25\RnBase\Domain\Collection\BaseCollection;
+
 /***************************************************************
  *  Copyright notice
  *
@@ -20,10 +26,6 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  ***************************************************************/
-tx_rnbase::load('tx_t3rest_decorator_Base');
-tx_rnbase::load('Tx_Rnbase_Utility_Strings');
-tx_rnbase::load('tx_t3srest_util_FAL');
-tx_rnbase::load('tx_rnbase_util_TSFAL');
 
 
 
@@ -35,13 +37,13 @@ tx_rnbase::load('tx_rnbase_util_TSFAL');
 class tx_t3srest_decorator_Team extends tx_t3rest_decorator_Base
 {
 
-    protected static $externals = array(
+    protected static $externals = [
         'pictures',
         'logo',
         'players',
         'coaches',
         'supporters'
-    );
+    ];
 
     public function addPlayers($team, $configurations, $confId)
     {
@@ -71,19 +73,21 @@ class tx_t3srest_decorator_Team extends tx_t3rest_decorator_Base
     private function addProfiles($team, $configurations, $confId, $joinCol)
     {
         // $srv = tx_cfcleague_util_ServiceRegistry::getProfileService();
-        $srv = tx_cfcleaguefe_util_ServiceRegistry::getProfileService();
+        $srv = ServiceRegistry::getProfileService();
+        $fields = [];
         $fields['PROFILE.UID'][OP_IN_INT] = $team->getProperty($joinCol);
-        $options = array();
-        tx_rnbase_util_SearchBase::setConfigFields($fields, $configurations, $confId . 'fields.');
-        tx_rnbase_util_SearchBase::setConfigOptions($options, $configurations, $confId . 'options.');
+        $options = [];
+        SearchBase::setConfigFields($fields, $configurations, $confId . 'fields.');
+        SearchBase::setConfigOptions($options, $configurations, $confId . 'options.');
         $children = $srv->search($fields, $options);
+
         if (! empty($children) && ! array_key_exists('orderby', $options)) { // Default sorting
             $children = $this->sortProfiles($children, $team->getProperty($joinCol));
         }
         $decorator = tx_rnbase::makeInstance('tx_t3srest_decorator_Profile');
         $decorator->setTeam($team);
 
-        $team->$joinCol = array();
+        $team->$joinCol = [];
         foreach ($children as $child) {
             $data = $decorator->prepareItem($child, $configurations, $confId);
             array_push($team->$joinCol, $data);
@@ -94,19 +98,22 @@ class tx_t3srest_decorator_Team extends tx_t3rest_decorator_Base
     /**
      * Sortiert die Profile nach der Reihenfolge im Team
      *
-     * @param array $profiles
+     * @param BaseCollection $profiles
      * @param string $sortArr
      * @return array
      */
-    private function sortProfiles(&$profiles, $sortArr)
+    private function sortProfiles($profiles, $sortArr)
     {
-        $sortArr = array_flip(Tx_Rnbase_Utility_Strings::intExplode(',', $sortArr));
+        $sortArr = array_flip(Strings::intExplode(',', $sortArr));
+
         foreach ($profiles as $profile) {
-            $sortArr[$profile->uid] = $profile;
+            $sortArr[$profile->getUid()] = $profile;
         }
-        $ret = array();
+        $ret = [];
         foreach ($sortArr as $profile) {
-            $ret[] = $profile;
+            if (is_object($profile)) {
+                $ret[] = $profile;
+            }
         }
         return $ret;
     }
@@ -114,7 +121,7 @@ class tx_t3srest_decorator_Team extends tx_t3rest_decorator_Base
     /**
      * Team ein Logo zuordnen
      *
-     * @param tx_cfcleague_models_Team $team
+     * @param Team $team
      * @param tx_rnbase_configurations $configurations
      * @param string $confId
      */

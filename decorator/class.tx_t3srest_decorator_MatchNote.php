@@ -20,7 +20,6 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  ***************************************************************/
-tx_rnbase::load('tx_t3rest_decorator_Base');
 
 /**
  * Sammelt zusätzliche Daten
@@ -30,9 +29,9 @@ tx_rnbase::load('tx_t3rest_decorator_Base');
 class tx_t3srest_decorator_MatchNote extends tx_t3rest_decorator_Base
 {
 
-    protected static $externals = array(
+    protected static $externals = [
         'profile'
-    );
+    ];
 
     protected function addProfiles($item, $configurations, $confId)
     {}

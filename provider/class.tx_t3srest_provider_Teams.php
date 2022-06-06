@@ -1,4 +1,9 @@
 <?php
+use System25\T3sports\Utility\ServiceRegistry;
+use System25\T3sports\Model\Team;
+use Sys25\RnBase\Frontend\Request\Request;
+use Sys25\RnBase\Frontend\Filter\BaseFilter;
+
 /***************************************************************
  *  Copyright notice
  *
@@ -20,11 +25,6 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  ***************************************************************/
-tx_rnbase::load('tx_t3rest_models_Provider');
-tx_rnbase::load('tx_t3rest_provider_AbstractBase');
-tx_rnbase::load('tx_t3rest_util_Objects');
-tx_rnbase::load('tx_rnbase_filter_BaseFilter');
-tx_rnbase::load('tx_rnbase_util_Logger');
 
 /**
  * This is a sample REST provider for T3sports teams
@@ -34,7 +34,7 @@ tx_rnbase::load('tx_rnbase_util_Logger');
  *
  * @author Rene Nitzsche
  */
-class tx_t3srest_provider_Teams extends tx_t3rest_provider_AbstractBase
+class tx_t3srest_provider_Teams extends tx_t3srest_provider_AbstractBase
 {
 
     protected function handleRequest($configurations, $confId)
@@ -42,7 +42,7 @@ class tx_t3srest_provider_Teams extends tx_t3rest_provider_AbstractBase
         if ($itemUid = $configurations->getParameters()->get('get')) {
             $confId = $confId . 'get.';
             $team = $this->getItem($itemUid, $configurations, $confId, array(
-                tx_cfcleague_util_ServiceRegistry::getTeamService(),
+                ServiceRegistry::getTeamService(),
                 'searchTeams'
             ));
             $decorator = tx_rnbase::makeInstance('tx_t3srest_decorator_Team');
@@ -58,7 +58,7 @@ class tx_t3srest_provider_Teams extends tx_t3rest_provider_AbstractBase
 
     protected function getBaseClass()
     {
-        return 'tx_cfcleague_models_Team';
+        return Team::class;
     }
 
     /**
@@ -68,33 +68,34 @@ class tx_t3srest_provider_Teams extends tx_t3rest_provider_AbstractBase
      *
      * @param mixed $teamUid
      *            int oder string-Identifier
-     * @return tx_cfcleague_models_Team
+     * @return Team
      */
     public function getTeam($teamUid, $configurations, $confId)
     {
         if (intval($teamUid)) {
-            $team = tx_rnbase::makeInstance('tx_cfcleague_models_Team', intval($teamUid));
+            $team = tx_rnbase::makeInstance(Team::class, intval($teamUid));
         }
-        
+
         // Prüfen, ob der Dienst konfiguriert ist
         $defined = $configurations->getKeyNames($confId . 'defined.');
         if (in_array($teamUid, $defined)) {
+            $request = new Request($configurations->getParameters(), $configurations, $confId);
             // Team per Config laden
-            $filter = tx_rnbase_filter_BaseFilter::createFilter($configurations->getParameters(), $configurations, null, $confId . 'defined.' . $teamUid . '.filter.');
-            $fields = array();
-            $options = array();
+            $filter = BaseFilter::createFilter($request, $confId . 'defined.' . $teamUid . '.filter.');
+            $fields = [];
+            $options = [];
             // suche initialisieren
             $filter->init($fields, $options);
             $options['forcewrapper'] = 1;
             $options['limit'] = 1;
-            $teams = tx_cfcleague_util_ServiceRegistry::getTeamService()->searchTeams($fields, $options);
+            $teams = ServiceRegistry::getTeamService()->searchTeams($fields, $options);
             $team = ! empty($teams) ? $teams[0] : null;
         }
-        
+
         if (! $team || ! $team->isValid()) {
             throw tx_rnbase::makeInstance('tx_t3rest_exeption_DataNotFound', 'Team not valid', 100);
         }
-        
+
         return $team;
     }
 }

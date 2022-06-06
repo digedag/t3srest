@@ -1,8 +1,15 @@
 <?php
+use System25\T3sports\Utility\ServiceRegistry;
+use Sys25\RnBase\Frontend\Filter\BaseFilter;
+use Sys25\RnBase\Configuration\ConfigurationInterface;
+use Sys25\RnBase\Frontend\Request\Request;
+use Sys25\RnBase\Frontend\Marker\ListProvider;
+use System25\T3sports\Model\Match;
+
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2012-2017 Rene Nitzsche
+ *  (c) 2012-2022 Rene Nitzsche
  *  Contact: rene@system25.de
  *  All rights reserved
  *
@@ -20,16 +27,13 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  ***************************************************************/
-tx_rnbase::load('tx_t3rest_models_Provider');
-tx_rnbase::load('tx_t3rest_provider_AbstractBase');
-tx_rnbase::load('tx_t3rest_util_Objects');
 
 /**
  * This is a sample REST provider for tt_news
  *
  * @author Rene Nitzsche
  */
-class tx_t3srest_provider_Matches extends tx_t3rest_provider_AbstractBase
+class tx_t3srest_provider_Matches extends tx_t3srest_provider_AbstractBase
 {
 
     protected function handleRequest($configurations, $confId)
@@ -37,7 +41,7 @@ class tx_t3srest_provider_Matches extends tx_t3rest_provider_AbstractBase
         if ($itemUid = $configurations->getParameters()->get('get')) {
             $confId = $confId . 'get.';
             $item = $this->getItem($itemUid, $configurations, $confId, array(
-                tx_cfcleague_util_ServiceRegistry::getMatchService(),
+                ServiceRegistry::getMatchService(),
                 'search'
             ));
             $decorator = tx_rnbase::makeInstance('tx_t3srest_decorator_Match');
@@ -45,44 +49,43 @@ class tx_t3srest_provider_Matches extends tx_t3rest_provider_AbstractBase
         } elseif ($searchType = $configurations->getParameters()->get('search')) {
             $confId = $confId . 'search.';
             $data = $this->getItems($searchType, $configurations, $confId, array(
-                tx_cfcleague_util_ServiceRegistry::getMatchService(),
+                ServiceRegistry::getMatchService(),
                 'search'
             ));
         }
         return $data;
     }
 
-    protected function getItems($searchType, $configurations, $confId, $searchCallback)
+    protected function getItems($searchType, ConfigurationInterface $configurations, $confId, $searchCallback)
     {
-        tx_rnbase::load('tx_rnbase_filter_BaseFilter');
-        $filter = tx_rnbase_filter_BaseFilter::createFilter($parameters, $configurations, $viewdata, $confId . 'defined.' . $searchType . '.filter.');
-        $fields = array();
-        $options = array();
-        $filter->init($fields, $options, $parameters, $configurations, $this->getConfId());
-        $prov = tx_rnbase::makeInstance('tx_rnbase_util_ListProvider');
+        $request = new Request($configurations->getParameters(), $configurations, $confId);
+        $filter = BaseFilter::createFilter($request, $confId . 'defined.' . $searchType . '.filter.');
+        $fields = [];
+        $options = [];
+        $filter->init($fields, $options);
+        $prov = tx_rnbase::makeInstance(ListProvider::class);
         $prov->initBySearch($searchCallback, $fields, $options);
-        
+
         $this->configurations = $configurations;
         $this->confId = $confId;
         $this->decorator = tx_rnbase::makeInstance('tx_t3srest_decorator_Match');
-        $prov->iterateAll(array(
+        $prov->iterateAll([
             $this,
             'loadItem'
-        ));
-        
+        ]);
+
         return $this->items;
     }
 
     public function loadItem($item)
     {
-        //
         $data = $this->decorator->prepareItem($item, $this->configurations, $this->confId);
         $this->items[] = $data;
     }
 
     protected function getBaseClass()
     {
-        return 'tx_cfcleague_models_Match';
+        return Match::class;
     }
 
     protected function getConfId()

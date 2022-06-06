@@ -20,12 +20,11 @@
 		"issues" : "https://github.com/digedag/t3srest/issues"
 	},
 	"replace" : {
-		"t3srest" : "self.version",
 		"typo3-ter/t3srest" : "self.version"
 	},
 	"require" : {
-		"typo3/cms-core" : ">=7.6.0 <=8.7.99",
-		"digedag/rn-base" : ">=1.8.0"
+		"typo3/cms-core": "^8.7 || ^9.5 || ^10.4",
+		"digedag/rn-base" : "^1.15"
 	},
 	"autoload" : {
 		"classmap" : [
