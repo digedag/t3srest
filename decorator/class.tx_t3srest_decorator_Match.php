@@ -137,8 +137,8 @@ class tx_t3srest_decorator_Match extends tx_t3rest_decorator_Base
         $profileSrv = ServiceRegistry::getProfileService();
         $profiles = $profileSrv->loadProfiles($item->getCoachHome());
         $item->setProperty('coachHome', !empty($profiles) ? $decorator->prepareItem($profiles[0], $configurations, $confId) : new \stdClass());
-        $profile = $profileSrv->loadProfiles($item->getCoachGuest());
-        $item->setProperty('coachGuest', !empty($profiles) ? $decorator->prepareItem($profile, $configurations, $confId) : new \stdClass());
+        $profiles = $profileSrv->loadProfiles($item->getCoachGuest());
+        $item->setProperty('coachGuest', !empty($profiles) ? $decorator->prepareItem($profile[0], $configurations, $confId) : new \stdClass());
     }
 
     /**
