@@ -67,11 +67,11 @@ class tx_t3srest_provider_LeagueTable extends tx_t3rest_provider_AbstractBase
      * Der Wettbewerb muss explizit gesetzt sein
      *
      * @param string $tableAlias string-Identifier
-     * @return Team
+     * @return array
      */
     private function getLeagueTable($tableAlias, $configurations, $confId)
     {
-        $ret = false;
+        $ret = [];
         // Prüfen, ob der Dienst konfiguriert ist
         $defined = $configurations->getKeyNames($confId . 'defined.');
         if (in_array($tableAlias, $defined)) {
@@ -94,6 +94,7 @@ class tx_t3srest_provider_LeagueTable extends tx_t3rest_provider_AbstractBase
             for ($i = 1, $max = $result->getRoundSize(); $i <= $max; $i ++) {
                 $score = $result->getScores($i);
                 for ($t = 0; $t < count($score); $t ++) {
+                    $score[$t]['teamId'] = substr($score[$t]['teamId'], 2);
                     unset($score[$t]['team']);
                     unset($score[$t]['matches']);
                 }
