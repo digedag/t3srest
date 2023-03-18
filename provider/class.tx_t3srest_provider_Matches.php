@@ -4,12 +4,12 @@ use Sys25\RnBase\Frontend\Filter\BaseFilter;
 use Sys25\RnBase\Configuration\ConfigurationInterface;
 use Sys25\RnBase\Frontend\Request\Request;
 use Sys25\RnBase\Frontend\Marker\ListProvider;
-use System25\T3sports\Model\Match;
+use System25\T3sports\Model\Fixture;
 
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2012-2022 Rene Nitzsche
+ *  (c) 2012-2023 Rene Nitzsche
  *  Contact: rene@system25.de
  *  All rights reserved
  *
@@ -85,7 +85,7 @@ class tx_t3srest_provider_Matches extends tx_t3srest_provider_AbstractBase
 
     protected function getBaseClass()
     {
-        return Match::class;
+        return Fixture::class;
     }
 
     protected function getConfId()

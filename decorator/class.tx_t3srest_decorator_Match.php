@@ -1,6 +1,6 @@
 <?php
 use System25\T3sports\Utility\MatchTicker;
-use System25\T3sports\Model\Match;
+use System25\T3sports\Model\Fixture;
 use Sys25\RnBase\Configuration\ConfigurationInterface;
 use System25\T3sports\Utility\ServiceRegistry;
 
@@ -63,7 +63,7 @@ class tx_t3srest_decorator_Match extends tx_t3rest_decorator_Base
 
     /**
      *
-     * @param Match $item
+     * @param Fixture $item
      * @param ConfigurationInterface $configurations
      * @param ConfigurationInterface $confId
      */
@@ -106,7 +106,7 @@ class tx_t3srest_decorator_Match extends tx_t3rest_decorator_Base
 
     /**
      *
-     * @param Match $item
+     * @param Fixture $item
      * @param ConfigurationInterface $configurations
      * @param ConfigurationInterface $confId
      */
@@ -117,7 +117,9 @@ class tx_t3srest_decorator_Match extends tx_t3rest_decorator_Base
         $referee = $item->getReferee();
         // TODO: if($referee)
         $referees['referee'] = $decorator->prepareItem($referee, $configurations, $confId);
-        $profiles = $item->getAssists();
+
+        $profileSrv = ServiceRegistry::getProfileService();
+        $profiles = $profileSrv->loadProfiles($item->getAssists());
         $referees['assists'] = [];
         foreach ($profiles as $profile) {
             $referees['assists'][] = $decorator->prepareItem($profile, $configurations, $confId);
@@ -127,7 +129,7 @@ class tx_t3srest_decorator_Match extends tx_t3rest_decorator_Base
 
     /**
      *
-     * @param Match $item
+     * @param Fixture $item
      * @param ConfigurationInterface $configurations
      * @param ConfigurationInterface $confId
      */
@@ -144,7 +146,7 @@ class tx_t3srest_decorator_Match extends tx_t3rest_decorator_Base
     /**
      * Teams laden
      *
-     * @param Match $item
+     * @param Fixture $item
      * @param tx_rnbase_configurations $configurations
      * @param string $confId
      */
@@ -157,7 +159,7 @@ class tx_t3srest_decorator_Match extends tx_t3rest_decorator_Base
         $item->setProperty('teamGuest', $decorator->prepareItem($guest, $configurations, $confId));
     }
 
-    protected function addCompetition(Match $item, $configurations, $confId)
+    protected function addCompetition(Fixture $item, $configurations, $confId)
     {
         // Der Wettbewerb sollte Schon vorhanden sein
         /* @var $decorator tx_t3srest_decorator_Competition */

@@ -1,13 +1,13 @@
 <?php
 use System25\T3sports\Utility\ServiceRegistry;
 use System25\T3sports\Utility\MatchTicker;
+use System25\T3sports\Model\Fixture;
 use System25\T3sports\Model\MatchNote;
-use System25\T3sports\Model\Match;
 
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2012-2022 Rene Nitzsche
+ *  (c) 2012-2023 Rene Nitzsche
  *  Contact: rene@system25.de
  *  All rights reserved
  *
@@ -76,7 +76,7 @@ class tx_t3srest_provider_MatchNotes extends tx_t3srest_provider_AbstractBase
 
     protected function getBaseClass()
     {
-        return Match::class;
+        return Fixture::class;
     }
 
     protected function getConfId()
