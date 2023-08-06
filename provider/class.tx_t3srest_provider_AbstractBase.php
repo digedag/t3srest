@@ -1,4 +1,6 @@
 <?php
+use DMK\T3rest\Legacy\Model\ProviderModel;
+use DMK\T3rest\Legacy\Provider\IProvider;
 use Sys25\RnBase\Frontend\Request\Request;
 use Sys25\RnBase\Frontend\Filter\BaseFilter;
 
@@ -29,9 +31,9 @@ use Sys25\RnBase\Frontend\Filter\BaseFilter;
  *
  * @author Rene Nitzsche
  */
-abstract class tx_t3srest_provider_AbstractBase implements tx_t3rest_provider_IProvider
+abstract class tx_t3srest_provider_AbstractBase implements IProvider
 {
-    public function execute(tx_t3rest_models_Provider $provData)
+    public function execute(ProviderModel $provData)
     {
         $configurations = $provData->getConfigurations();
         $confId = $this->getConfId();

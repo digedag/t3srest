@@ -1,4 +1,5 @@
 <?php
+use DMK\T3rest\Legacy\Utility\Objects;
 use System25\T3sports\Model\Competition;
 
 /***************************************************************
@@ -59,7 +60,7 @@ class tx_t3srest_decorator_Competition extends tx_t3rest_decorator_Base
     protected function getIgnoreFields($configurations, $confId)
     {
         if (! self::$ignoreFields) {
-            self::$ignoreFields = array_merge(tx_t3rest_util_Objects::getIgnoreFields(), array(
+            self::$ignoreFields = array_merge(Objects::getIgnoreFields(), array(
                 'match_keys',
                 'teams',
                 'internal_name'
