@@ -34,7 +34,7 @@ use System25\T3sports\Model\Competition;
  *
  * @author Rene Nitzsche
  */
-class tx_t3srest_provider_LeagueTable extends tx_t3rest_provider_AbstractBase
+class tx_t3srest_provider_LeagueTable extends tx_t3srest_provider_AbstractBase
 {
 
     protected function handleRequest($configurations, $confId)
