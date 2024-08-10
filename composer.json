@@ -32,5 +32,12 @@
 			"provider/",
 			"util/"
 		]
-	}
+	},
+    "extra": {
+        "typo3/cms": {
+            "cms-package-dir": "{$vendor-dir}/typo3/cms",
+            "extension-key": "t3srest",
+            "web-dir": ".Build/Web"
+      }
+    }
 }
