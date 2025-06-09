@@ -1,13 +1,18 @@
 <?php
+namespace System25\T3srest\Decorator;
+
+use DMK\T3rest\Legacy\Decorator\BaseDecorator;
 use System25\T3sports\Utility\MatchTicker;
 use System25\T3sports\Model\Fixture;
 use Sys25\RnBase\Configuration\ConfigurationInterface;
 use System25\T3sports\Utility\ServiceRegistry;
+use System25\T3srest\Utility\FALUtil;
+use tx_rnbase;
 
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2012-2022 Rene Nitzsche
+ *  (c) 2012-2025 Rene Nitzsche
  *  Contact: rene@system25.de
  *  All rights reserved
  *
@@ -31,7 +36,7 @@ use System25\T3sports\Utility\ServiceRegistry;
  *
  * @author Rene Nitzsche
  */
-class tx_t3srest_decorator_Match extends tx_t3rest_decorator_Base
+class MatchDecorator extends BaseDecorator
 {
     private static $cache = [];
 
@@ -45,15 +50,29 @@ class tx_t3srest_decorator_Match extends tx_t3rest_decorator_Base
         'players'
     ];
 
+    private $matchNoteDecorator;
+    private $profileDecorator;
+    private $teamDecorator;
+
+    public function __construct(
+        MatchNoteDecorator $matchNoteDecorator,
+        ProfileDecorator $profileDecorator,
+        TeamDecorator $teamDecorator
+    ) {
+        $this->matchNoteDecorator = $matchNoteDecorator;
+        $this->profileDecorator = $profileDecorator;
+        $this->teamDecorator = $teamDecorator;
+    }
+
     /**
      */
-    public static function addMatchnotes($item, $configurations, $confId)
+    public function addMatchnotes($item, $configurations, $confId)
     {
 
         $tickerUtil = new MatchTicker();
         $matchNotes = & $tickerUtil->getTicker4Match($item);
-        $notes = array();
-        $decorator = tx_rnbase::makeInstance('tx_t3srest_decorator_MatchNote');
+        $notes = [];
+        $decorator = $this->matchNoteDecorator;
         foreach ($matchNotes as $note) {
             $note->unsProperty('match');
             $notes[] = $decorator->prepareItem($note, $configurations, $confId);
@@ -67,7 +86,7 @@ class tx_t3srest_decorator_Match extends tx_t3rest_decorator_Base
      * @param ConfigurationInterface $configurations
      * @param ConfigurationInterface $confId
      */
-    public static function addPlayers($item, $configurations, $confId)
+    public function addPlayers($item, $configurations, $confId)
     {
         $playersHome = [];
         $playersGuest = [];
@@ -75,15 +94,15 @@ class tx_t3srest_decorator_Match extends tx_t3rest_decorator_Base
         $substitutesGuest = [];
 
         $profileSrv = ServiceRegistry::getProfileService();
-        $decorator = tx_rnbase::makeInstance('tx_t3srest_decorator_Profile');
-        // FIXME: das Spiel nochmal über die alte API laden, um an die MatchNotes zu kommen
-        /* @var $match \tx_cfcleaguefe_models_match */
-//        $match = tx_rnbase::makeInstance('tx_cfcleaguefe_models_match', $item->getProperty());
+        $decorator = $this->profileDecorator;
+        $decorator->setTeam($item->getHome());
         $profiles = $profileSrv->loadProfiles($item->getPlayersHome());
-        foreach ($profiles as $profile) {
+        foreach ($profiles as $idx => $profile) {
             $playersHome[] = $decorator->prepareItem($profile, $configurations, $confId);
         }
         $item->setProperty('playersHome', $playersHome);
+
+        $decorator->setTeam($item->getGuest());
 
         $profiles = $profileSrv->loadProfiles($item->getPlayersGuest());
         foreach ($profiles as $profile) {
@@ -110,10 +129,10 @@ class tx_t3srest_decorator_Match extends tx_t3rest_decorator_Base
      * @param ConfigurationInterface $configurations
      * @param ConfigurationInterface $confId
      */
-    public static function addReferees($item, $configurations, $confId)
+    public function addReferees($item, $configurations, $confId)
     {
         $referees = [];
-        $decorator = tx_rnbase::makeInstance('tx_t3srest_decorator_Profile');
+        $decorator = $this->profileDecorator;
         $referee = $item->getReferee();
         // TODO: if($referee)
         $referees['referee'] = $decorator->prepareItem($referee, $configurations, $confId);
@@ -133,14 +152,14 @@ class tx_t3srest_decorator_Match extends tx_t3rest_decorator_Base
      * @param ConfigurationInterface $configurations
      * @param ConfigurationInterface $confId
      */
-    public static function addCoaches($item, $configurations, $confId)
+    public function addCoaches($item, $configurations, $confId)
     {
-        $decorator = tx_rnbase::makeInstance('tx_t3srest_decorator_Profile');
+        $decorator = $this->profileDecorator;
         $profileSrv = ServiceRegistry::getProfileService();
         $profiles = $profileSrv->loadProfiles($item->getCoachHome());
         $item->setProperty('coachHome', !empty($profiles) ? $decorator->prepareItem($profiles[0], $configurations, $confId) : new \stdClass());
         $profiles = $profileSrv->loadProfiles($item->getCoachGuest());
-        $item->setProperty('coachGuest', !empty($profiles) ? $decorator->prepareItem($profile[0], $configurations, $confId) : new \stdClass());
+        $item->setProperty('coachGuest', !empty($profiles) ? $decorator->prepareItem($profiles[0], $configurations, $confId) : new \stdClass());
     }
 
     /**
@@ -150,9 +169,10 @@ class tx_t3srest_decorator_Match extends tx_t3rest_decorator_Base
      * @param tx_rnbase_configurations $configurations
      * @param string $confId
      */
-    public static function addTeams($item, $configurations, $confId)
+    public function addTeams($item, $configurations, $confId)
     {
-        $decorator = tx_rnbase::makeInstance('tx_t3srest_decorator_Team');
+        /** @var TeamDecorator $decorator */
+        $decorator = $this->teamDecorator;
         $home = $item->getHome();
         $item->setProperty('teamHome', $decorator->prepareItem($home, $configurations, $confId));
         $guest = $item->getGuest();
@@ -162,8 +182,8 @@ class tx_t3srest_decorator_Match extends tx_t3rest_decorator_Base
     protected function addCompetition(Fixture $item, $configurations, $confId)
     {
         // Der Wettbewerb sollte Schon vorhanden sein
-        /* @var $decorator tx_t3srest_decorator_Competition */
-        $decorator = tx_rnbase::makeInstance('tx_t3srest_decorator_Competition');
+        /** @var CompetitionDecorator $decorator */
+        $decorator = tx_rnbase::makeInstance(CompetitionDecorator::class);
         $comp = $item->getCompetition();
         $cKey = sprintf('comp_%d', $comp->getUid());
 
@@ -180,7 +200,7 @@ class tx_t3srest_decorator_Match extends tx_t3rest_decorator_Base
 
     protected function addPictures($item, $configurations, $confId)
     {
-        $pics = tx_t3srest_util_FAL::getFalPictures($item->getUid(), 'tx_cfcleague_games', 't3images', $configurations, $confId);
+        $pics = FALUtil::getFalPictures($item->getUid(), 'tx_cfcleague_games', 't3images', $configurations, $confId);
         $item->setProperty('pictures', $pics);
     }
 

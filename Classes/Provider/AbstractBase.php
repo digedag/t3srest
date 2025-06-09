@@ -1,13 +1,18 @@
 <?php
+
+namespace System25\T3srest\Provider;
+
+use DMK\T3rest\Legacy\Exception\DataNotFoundException;
 use DMK\T3rest\Legacy\Model\ProviderModel;
 use DMK\T3rest\Legacy\Provider\IProvider;
 use Sys25\RnBase\Frontend\Request\Request;
 use Sys25\RnBase\Frontend\Filter\BaseFilter;
+use tx_rnbase;
 
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2012 Rene Nitzsche
+ *  (c) 2012-2025 Rene Nitzsche
  *  Contact: rene@system25.de
  *  All rights reserved
  *
@@ -31,7 +36,7 @@ use Sys25\RnBase\Frontend\Filter\BaseFilter;
  *
  * @author Rene Nitzsche
  */
-abstract class tx_t3srest_provider_AbstractBase implements IProvider
+abstract class AbstractBase implements IProvider
 {
     public function execute(ProviderModel $provData)
     {
@@ -80,7 +85,7 @@ abstract class tx_t3srest_provider_AbstractBase implements IProvider
         }
 
         if (!$item || !$item->isValid()) {
-            throw tx_rnbase::makeInstance('tx_t3rest_exception_DataNotFound', 'Item not valid', 100);
+            throw tx_rnbase::makeInstance(DataNotFoundException::class, 'Item not valid', 100);
         }
 
         return $item;

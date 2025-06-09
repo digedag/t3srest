@@ -1,4 +1,9 @@
 <?php
+
+namespace System25\T3srest\Decorator;
+
+use DMK\T3rest\Legacy\Decorator\BaseDecorator;
+use stdClass;
 use Sys25\RnBase\Utility\Strings;
 use System25\T3sports\Model\Team;
 use System25\T3sports\Decorator\TeamNoteDecorator;
@@ -6,11 +11,13 @@ use System25\T3sports\Model\Repository\TeamNoteRepository;
 use System25\T3sports\Model\Profile;
 use Sys25\RnBase\Configuration\ConfigurationInterface;
 use System25\T3sports\Model\TeamNote;
+use System25\T3srest\Utility\FALUtil;
+use tx_rnbase;
 
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2012-2017 Rene Nitzsche
+ *  (c) 2012-2025 Rene Nitzsche
  *  Contact: rene@system25.de
  *  All rights reserved
  *
@@ -34,7 +41,7 @@ use System25\T3sports\Model\TeamNote;
  *
  * @author Rene Nitzsche
  */
-class tx_t3srest_decorator_Profile extends tx_t3rest_decorator_Base
+class ProfileDecorator extends BaseDecorator
 {
     private $tnDecorator;
     private $team;
@@ -126,7 +133,7 @@ class tx_t3srest_decorator_Profile extends tx_t3rest_decorator_Base
                 $note->type = $teamNote->getMediaType();
                 // Typ ermitteln
                 if ($teamNote->getMediaType() == 1) { // DAM-Reference
-                    $pics = tx_t3srest_util_FAL::getFalPictures($teamNote->getUid(), 'tx_cfcleague_team_notes', 'media', $configurations, $confId . $field . '.');
+                    $pics = FALUtil::getFalPictures($teamNote->getUid(), 'tx_cfcleague_team_notes', 'media', $configurations, $confId . $field . '.');
                     if (! empty($pics))
                         $note->media = $pics[0];
                 } else {
@@ -145,8 +152,8 @@ class tx_t3srest_decorator_Profile extends tx_t3rest_decorator_Base
 
     protected function addPictures($item, $configurations, $confId)
     {
-        $pics = tx_t3srest_util_FAL::getFalPictures($item->getUid(), 'tx_cfcleague_profiles', 't3images', $configurations, $confId);
-        $item->setProperty(pictures, $pics);
+        $pics = FALUtil::getFalPictures($item->getUid(), 'tx_cfcleague_profiles', 't3images', $configurations, $confId);
+        $item->setProperty('pictures', $pics);
     }
 
     /**

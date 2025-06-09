@@ -23,15 +23,13 @@
 		"typo3-ter/t3srest" : "self.version"
 	},
 	"require" : {
-		"typo3/cms-core": "^8.7 || ^9.5 || ^10.4 || ^11.5 || ^12.4",
-		"digedag/rn-base" : "^1.15"
+		"typo3/cms-core": "^10.4 || ^11.5 || ^12.4 || ^13.4",
+		"digedag/rn-base" : "^1.19"
 	},
 	"autoload" : {
-		"classmap" : [
-			"decorator/",
-			"provider/",
-			"util/"
-		]
+		"psr-4": {
+			"System25\\T3srest\\": "Classes"
+		}
 	},
     "extra": {
         "typo3/cms": {

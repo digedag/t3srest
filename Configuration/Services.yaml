@@ -1,0 +1,17 @@
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+    public: false
+
+  System25\T3srest\:
+    resource: '../Classes/*'
+
+  System25\T3srest\Provider\MatchesProvider:
+    public: true
+  System25\T3srest\Provider\TeamsProvider:
+    public: true
+  System25\T3srest\Provider\MatchNotesProvider:
+    public: true
+  System25\T3srest\Provider\LeagueTableProvider:
+    public: true

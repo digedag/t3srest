@@ -46,15 +46,16 @@ lib.profile.record {
 
 # Zugriff auf Teams
 team.get {
-  record.externals = logo, pictures
+	record.externals = logo, pictures
 	record.externals.pictures < lib.pictures
 	record.externals.logo < lib.logo
 }
 
-#Zugriff aus Spiele
+#Zugriff auf Spiele
 match.get {
-  record.externals = teams, pictures, competition
+	record.externals = teams, pictures, competition
 	record.externals.pictures < lib.pictures
+
 	record.externals.teams {
 	  record < team.get.record
 	  record.externals = logo

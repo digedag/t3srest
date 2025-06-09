@@ -1,8 +1,13 @@
 <?php
+
+namespace System25\T3srest\Decorator;
+
+use DMK\T3rest\Legacy\Decorator\BaseDecorator;
+
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2012-2017 Rene Nitzsche
+ *  (c) 2012-2025 Rene Nitzsche
  *  Contact: rene@system25.de
  *  All rights reserved
  *
@@ -26,7 +31,7 @@
  *
  * @author Rene Nitzsche
  */
-class tx_t3srest_decorator_MatchNote extends tx_t3rest_decorator_Base
+class MatchNoteDecorator extends BaseDecorator
 {
 
     protected static $externals = [

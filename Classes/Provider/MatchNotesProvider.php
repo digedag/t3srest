@@ -1,13 +1,17 @@
 <?php
+
+namespace System25\T3srest\Provider;
+
 use System25\T3sports\Utility\ServiceRegistry;
 use System25\T3sports\Utility\MatchTicker;
 use System25\T3sports\Model\Fixture;
-use System25\T3sports\Model\MatchNote;
+use System25\T3srest\Decorator\MatchNoteDecorator;
+use tx_rnbase;
 
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2012-2023 Rene Nitzsche
+ *  (c) 2012-2025 Rene Nitzsche
  *  Contact: rene@system25.de
  *  All rights reserved
  *
@@ -33,7 +37,7 @@ use System25\T3sports\Model\MatchNote;
  *
  * @author Rene Nitzsche
  */
-class tx_t3srest_provider_MatchNotes extends tx_t3srest_provider_AbstractBase
+class MatchNotesProvider extends AbstractBase
 {
 
     protected function handleRequest($configurations, $confId)
@@ -53,7 +57,7 @@ class tx_t3srest_provider_MatchNotes extends tx_t3srest_provider_AbstractBase
                 $matchNotes = array_reverse($matchNotes);
             }
             $data = [];
-            $decorator = tx_rnbase::makeInstance('tx_t3srest_decorator_MatchNote');
+            $decorator = tx_rnbase::makeInstance(MatchNoteDecorator::class);
             $minMinute = $configurations->getParameters()->getInt('minute');
             foreach ($matchNotes as $note) {
                 /* @var $note MatchNote */
@@ -65,13 +69,6 @@ class tx_t3srest_provider_MatchNotes extends tx_t3srest_provider_AbstractBase
             }
         }
         return $data;
-    }
-
-    public function loadItem($item)
-    {
-        //
-        $data = $this->decorator->prepareItem($item, $this->configurations, $this->confId);
-        $this->items[] = $data;
     }
 
     protected function getBaseClass()

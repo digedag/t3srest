@@ -1,14 +1,21 @@
 <?php
+
+namespace System25\T3srest\Decorator;
+
+use DMK\T3rest\Legacy\Decorator\BaseDecorator;
 use System25\T3sports\Utility\ServiceRegistry;
 use Sys25\RnBase\Search\SearchBase;
 use System25\T3sports\Model\Team;
 use Sys25\RnBase\Utility\Strings;
 use Sys25\RnBase\Domain\Collection\BaseCollection;
+use Sys25\RnBase\Utility\TSFAL;
+use System25\T3srest\Utility\FALUtil;
+use tx_rnbase;
 
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2012-2017 Rene Nitzsche
+ *  (c) 2012-2025 Rene Nitzsche
  *  Contact: rene@system25.de
  *  All rights reserved
  *
@@ -34,7 +41,7 @@ use Sys25\RnBase\Domain\Collection\BaseCollection;
  *
  * @author Rene Nitzsche
  */
-class tx_t3srest_decorator_Team extends tx_t3rest_decorator_Base
+class TeamDecorator extends BaseDecorator
 {
 
     protected static $externals = [
@@ -84,7 +91,7 @@ class tx_t3srest_decorator_Team extends tx_t3rest_decorator_Base
         if (! empty($children) && ! array_key_exists('orderby', $options)) { // Default sorting
             $children = $this->sortProfiles($children, $team->getProperty($joinCol));
         }
-        $decorator = tx_rnbase::makeInstance('tx_t3srest_decorator_Profile');
+        $decorator = tx_rnbase::makeInstance(ProfileDecorator::class);
         $decorator->setTeam($team);
 
         $team->$joinCol = [];
@@ -128,24 +135,24 @@ class tx_t3srest_decorator_Team extends tx_t3rest_decorator_Base
     public static function addLogo($team, $configurations, $confId)
     {
         // 1. Bild direkt zugeordnet
-        $pics = tx_t3srest_util_FAL::getFalPictures($team->getUid(), 'tx_cfcleague_teams', 'logo', $configurations, $confId);
+        $pics = FALUtil::getFalPictures($team->getUid(), 'tx_cfcleague_teams', 'logo', $configurations, $confId);
         if (empty($pics) && intval($team->getProperty('logo'))) {
             // 2. Schritt Feld logo
             $picCfg = $configurations->getKeyNames($confId);
             $refUid = $team->getProperty('logo');
 
-            $fileRef = tx_rnbase_util_TSFAL::getFileReferenceById($refUid);
+            $fileRef = TSFAL::getFileReferenceById($refUid);
             if($fileRef && $fileRef->getOriginalFile()) {
                 /* @var $fileObject \TYPO3\CMS\Core\Resource\File */
                 $fileObject = $fileRef->getOriginalFile();
                 $media = tx_rnbase::makeInstance('tx_rnbase_model_media', $fileObject);
-                $pic = tx_t3srest_util_FAL::convertFal2StdClass($media->getProperty(), $configurations, $confId, $picCfg);
+                $pic = FALUtil::convertFal2StdClass($media->getProperty(), $configurations, $confId, $picCfg);
                 $pics = [$pic];
             }
         }
         if (empty($pics) && $team->getClubUid()) {
             // 3. Schritt
-            $pics = tx_t3srest_util_FAL::getFalPictures($team->getClubUid(), 'tx_cfcleague_club', 'logo', $configurations, $confId);
+            $pics = FALUtil::getFalPictures($team->getClubUid(), 'tx_cfcleague_club', 'logo', $configurations, $confId);
             // Am Club können mehrere Logos hängen. Wir nehmen nur das erste
             if (count($pics) > 1) {
                 $pics = [$pics[0]];
@@ -156,7 +163,7 @@ class tx_t3srest_decorator_Team extends tx_t3rest_decorator_Base
 
     protected function addPictures($team, $configurations, $confId)
     {
-        $pics = tx_t3srest_util_FAL::getFalPictures($team->getUid(), 'tx_cfcleague_teams', 't3images', $configurations, $confId);
+        $pics = FALUtil::getFalPictures($team->getUid(), 'tx_cfcleague_teams', 't3images', $configurations, $confId);
         $team->setProperty('pictures', $pics);
     }
 
