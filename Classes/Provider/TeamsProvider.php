@@ -1,13 +1,19 @@
 <?php
+
+namespace System25\T3srest\Provider;
+
+use DMK\T3rest\Legacy\Exception\DataNotFoundException;
 use System25\T3sports\Utility\ServiceRegistry;
 use System25\T3sports\Model\Team;
 use Sys25\RnBase\Frontend\Request\Request;
 use Sys25\RnBase\Frontend\Filter\BaseFilter;
+use System25\T3srest\Decorator\TeamDecorator;
+use tx_rnbase;
 
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2012-2017 Rene Nitzsche
+ *  (c) 2012-2025 Rene Nitzsche
  *  Contact: rene@system25.de
  *  All rights reserved
  *
@@ -34,8 +40,15 @@ use Sys25\RnBase\Frontend\Filter\BaseFilter;
  *
  * @author Rene Nitzsche
  */
-class tx_t3srest_provider_Teams extends tx_t3srest_provider_AbstractBase
+class TeamsProvider extends AbstractBase
 {
+
+    private $teamDecorator;
+
+    public function __construct(TeamDecorator $teamDecorator)
+    {
+        $this->teamDecorator = $teamDecorator;
+    }
 
     protected function handleRequest($configurations, $confId)
     {
@@ -45,7 +58,7 @@ class tx_t3srest_provider_Teams extends tx_t3srest_provider_AbstractBase
                 ServiceRegistry::getTeamService(),
                 'searchTeams'
             ));
-            $decorator = tx_rnbase::makeInstance('tx_t3srest_decorator_Team');
+            $decorator = $this->teamDecorator;
             $data = $decorator->prepareItem($team, $configurations, $confId);
         }
         return $data;
@@ -93,7 +106,7 @@ class tx_t3srest_provider_Teams extends tx_t3srest_provider_AbstractBase
         }
 
         if (! $team || ! $team->isValid()) {
-            throw tx_rnbase::makeInstance('tx_t3rest_exeption_DataNotFound', 'Team not valid', 100);
+            throw tx_rnbase::makeInstance(DataNotFoundException::class, 'Team not valid', 100);
         }
 
         return $team;

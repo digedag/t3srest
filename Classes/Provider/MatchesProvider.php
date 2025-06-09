@@ -1,15 +1,21 @@
 <?php
+
+namespace System25\T3srest\Provider;
+
 use System25\T3sports\Utility\ServiceRegistry;
 use Sys25\RnBase\Frontend\Filter\BaseFilter;
 use Sys25\RnBase\Configuration\ConfigurationInterface;
 use Sys25\RnBase\Frontend\Request\Request;
 use Sys25\RnBase\Frontend\Marker\ListProvider;
 use System25\T3sports\Model\Fixture;
+use System25\T3srest\Decorator\MatchDecorator;
+use Throwable;
+use tx_rnbase;
 
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2012-2023 Rene Nitzsche
+ *  (c) 2012-2025 Rene Nitzsche
  *  Contact: rene@system25.de
  *  All rights reserved
  *
@@ -29,23 +35,32 @@ use System25\T3sports\Model\Fixture;
  ***************************************************************/
 
 /**
- * This is a sample REST provider for tt_news
  *
  * @author Rene Nitzsche
  */
-class tx_t3srest_provider_Matches extends tx_t3srest_provider_AbstractBase
+class MatchesProvider extends AbstractBase
 {
+    private $matchDecorator;
+
+    public function __construct(MatchDecorator $matchDecorator)
+    {
+        $this->matchDecorator = $matchDecorator;
+    }
 
     protected function handleRequest($configurations, $confId)
     {
         if ($itemUid = $configurations->getParameters()->get('get')) {
             $confId = $confId . 'get.';
-            $item = $this->getItem($itemUid, $configurations, $confId, array(
+            $item = $this->getItem($itemUid, $configurations, $confId, [
                 ServiceRegistry::getMatchService(),
                 'search'
-            ));
-            $decorator = tx_rnbase::makeInstance('tx_t3srest_decorator_Match');
-            $data = $decorator->prepareItem($item, $configurations, $confId);
+            ]);
+            $decorator = $this->matchDecorator;
+            try {
+                $data = $decorator->prepareItem($item, $configurations, $confId);
+            } catch (Throwable $e) {
+                echo 'FEHLER: ' . $e->getMessage() . '<br />';
+            }
         } elseif ($searchType = $configurations->getParameters()->get('search')) {
             $confId = $confId . 'search.';
             $data = $this->getItems($searchType, $configurations, $confId, array(
@@ -66,21 +81,17 @@ class tx_t3srest_provider_Matches extends tx_t3srest_provider_AbstractBase
         $prov = tx_rnbase::makeInstance(ListProvider::class);
         $prov->initBySearch($searchCallback, $fields, $options);
 
-        $this->configurations = $configurations;
-        $this->confId = $confId;
-        $this->decorator = tx_rnbase::makeInstance('tx_t3srest_decorator_Match');
+        $decorator = tx_rnbase::makeInstance(MatchDecorator::class);
+        $items = [];
         $prov->iterateAll([
             $this,
-            'loadItem'
+            function ($item) use (&$items, $decorator, $configurations, $confId) {
+                $data = $decorator->prepareItem($item, $configurations, $confId);
+                $items[] = $data;
+            }
         ]);
 
-        return $this->items;
-    }
-
-    public function loadItem($item)
-    {
-        $data = $this->decorator->prepareItem($item, $this->configurations, $this->confId);
-        $this->items[] = $data;
+        return $items;
     }
 
     protected function getBaseClass()

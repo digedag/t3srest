@@ -1,13 +1,19 @@
 <?php
+
+namespace System25\T3srest\Provider;
+
+use stdClass;
 use System25\T3sports\Table\Builder;
 use System25\T3sports\Utility\ServiceRegistry;
 use System25\T3sports\Model\Team;
 use System25\T3sports\Model\Competition;
+use System25\T3srest\Decorator\CompetitionDecorator;
+use tx_rnbase;
 
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2012-2017 Rene Nitzsche
+ *  (c) 2012-2025 Rene Nitzsche
  *  Contact: rene@system25.de
  *  All rights reserved
  *
@@ -34,7 +40,7 @@ use System25\T3sports\Model\Competition;
  *
  * @author Rene Nitzsche
  */
-class tx_t3srest_provider_LeagueTable extends tx_t3srest_provider_AbstractBase
+class LeagueTableProvider extends AbstractBase
 {
 
     protected function handleRequest($configurations, $confId)
@@ -45,7 +51,7 @@ class tx_t3srest_provider_LeagueTable extends tx_t3srest_provider_AbstractBase
             if ($tableData) {
                 $data = new stdClass();
                 $data->rounds = isset($tableData->rounds) ? $tableData->rounds : [];
-                $decorator = tx_rnbase::makeInstance('tx_t3srest_decorator_Competition');
+                $decorator = tx_rnbase::makeInstance(CompetitionDecorator::class);
                 $data->competition = $decorator->prepareItem($tableData->competition, $configurations, $confId . 'get.defined.' . $tableAlias . '.competition.');
             }
         }
@@ -67,11 +73,11 @@ class tx_t3srest_provider_LeagueTable extends tx_t3srest_provider_AbstractBase
      * Der Wettbewerb muss explizit gesetzt sein
      *
      * @param string $tableAlias string-Identifier
-     * @return array
+     * @return stdClass|null
      */
     private function getLeagueTable($tableAlias, $configurations, $confId)
     {
-        $ret = [];
+        $ret = null;
         // Prüfen, ob der Dienst konfiguriert ist
         $defined = $configurations->getKeyNames($confId . 'defined.');
         if (in_array($tableAlias, $defined)) {

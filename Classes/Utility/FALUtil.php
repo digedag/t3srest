@@ -1,9 +1,15 @@
 <?php
 
+namespace System25\T3srest\Utility;
+
+use stdClass;
+use Sys25\RnBase\Utility\Misc;
+use Sys25\RnBase\Utility\TSFAL;
+
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2012-2017 Rene Nitzsche
+ *  (c) 2012-2025 Rene Nitzsche
  *  Contact: rene@system25.de
  *  All rights reserved
  *
@@ -27,7 +33,7 @@
  *
  * @author Rene Nitzsche
  */
-class tx_t3srest_util_FAL
+class FALUtil
 {
 
     public static function getFalPictures($refUid, $refTable, $refField, $configurations, $confId, $fields = array())
@@ -40,9 +46,8 @@ class tx_t3srest_util_FAL
                 'file_hash',
                 'tstamp'
             ];
-        tx_rnbase::load('tx_rnbase_util_TSFAL');
         $ret = [];
-        $files = tx_rnbase_util_TSFAL::fetchFiles($refTable, $refUid, $refField);
+        $files = TSFAL::fetchFiles($refTable, $refUid, $refField);
         foreach ($files as $uid => $media) {
             $ret[] = self::convertFal2StdClass($media->getProperty(), $configurations, $confId, $picCfg, $fields);
         }
@@ -61,7 +66,7 @@ class tx_t3srest_util_FAL
         $data = new stdClass();
         $filepath = $record['file_path'] . $record['file_name'];
         $data->filepath = $filepath;
-        $server = \tx_rnbase_util_Misc::getIndpEnv('TYPO3_SITE_URL');
+        $server = Misc::getIndpEnv('TYPO3_SITE_URL');
         $data->absFilepath = $server . $filepath;
         $record['file'] = $filepath;
         // Bild skalieren

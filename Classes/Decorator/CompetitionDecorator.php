@@ -1,11 +1,16 @@
 <?php
+
+namespace System25\T3srest\Decorator;
+
+use DMK\T3rest\Legacy\Decorator\BaseDecorator;
 use DMK\T3rest\Legacy\Utility\Objects;
 use System25\T3sports\Model\Competition;
+use System25\T3srest\Utility\FALUtil;
 
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2012-2018 Rene Nitzsche
+ *  (c) 2012-2025 Rene Nitzsche
  *  Contact: rene@system25.de
  *  All rights reserved
  *
@@ -29,19 +34,12 @@ use System25\T3sports\Model\Competition;
  *
  * @author Rene Nitzsche
  */
-class tx_t3srest_decorator_Competition extends tx_t3rest_decorator_Base
+class CompetitionDecorator extends BaseDecorator
 {
 
-    protected static $externals = array(
+    protected static $externals = [
         'logo'
-    );
-
-    // public function prepareItem($item, $configurations, $confId) {
-    // $ret = parent::prepareItem($item, $configurations, $confId);
-    // t3lib_div::debug($ret, 'tx_t3srest_decorator_Competition: '.__LINE__);
-    // exit();
-    // return $ret;
-    // }
+    ];
 
     /**
      * Team ein Logo zuordnen
@@ -53,18 +51,18 @@ class tx_t3srest_decorator_Competition extends tx_t3rest_decorator_Base
     public static function addLogo($item, $configurations, $confId)
     {
         // 1. Bild direkt zugeordnet
-        $pics = tx_t3srest_util_FAL::getFalPictures($item->getUid(), 'tx_cfcleague_competition', 'logo', $configurations, $confId);
+        $pics = FALUtil::getFalPictures($item->getUid(), 'tx_cfcleague_competition', 'logo', $configurations, $confId);
         $item->setProperty('logo', ! empty($pics) ? $pics[0] : null);
     }
 
     protected function getIgnoreFields($configurations, $confId)
     {
         if (! self::$ignoreFields) {
-            self::$ignoreFields = array_merge(Objects::getIgnoreFields(), array(
+            self::$ignoreFields = array_merge(Objects::getIgnoreFields(), [
                 'match_keys',
                 'teams',
                 'internal_name'
-            ));
+            ]);
         }
         return self::$ignoreFields;
     }

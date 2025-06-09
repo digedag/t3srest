@@ -1,8 +1,14 @@
 <?php
+
+namespace System25\T3srest\Decorator;
+
+use DMK\T3rest\Legacy\Decorator\BaseDecorator;
+use System25\T3sports\Model\MatchNote;
+
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2012-2017 Rene Nitzsche
+ *  (c) 2012-2025 Rene Nitzsche
  *  Contact: rene@system25.de
  *  All rights reserved
  *
@@ -26,12 +32,27 @@
  *
  * @author Rene Nitzsche
  */
-class tx_t3srest_decorator_MatchNote extends tx_t3rest_decorator_Base
+class MatchNoteDecorator extends BaseDecorator
 {
 
     protected static $externals = [
         'profile'
     ];
+
+    /**
+     * @param MatchNote $item
+     */
+    protected function handleItemBefore($item, $configurations, $confId)
+    {
+        if (!$item) {
+            return;
+        }
+
+        if ($msg = $item->getProperty('comment')) {
+            $msg = str_replace(["\r", '<br />'], '', $msg);
+            $item->setProperty('comment', $msg);
+        }
+    }
 
     protected function addProfiles($item, $configurations, $confId)
     {}
