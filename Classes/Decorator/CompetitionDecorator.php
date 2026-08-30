@@ -42,16 +42,18 @@ class CompetitionDecorator extends BaseDecorator
     ];
 
     /**
-     * Team ein Logo zuordnen
+     * Wettbewerb ein Logo zuordnen.
+     * Methode wird über loadExternals aufgerufen.
      *
      * @param Competition $item
      * @param tx_rnbase_configurations $configurations
      * @param string $confId
      */
-    public static function addLogo($item, $configurations, $confId)
+    public function addLogo($item, $configurations, $confId)
     {
         // 1. Bild direkt zugeordnet
         $pics = FALUtil::getFalPictures($item->getUid(), 'tx_cfcleague_competition', 'logo', $configurations, $confId);
+
         $item->setProperty('logo', ! empty($pics) ? $pics[0] : null);
     }
 

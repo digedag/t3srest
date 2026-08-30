@@ -81,15 +81,15 @@ class MatchesProvider extends AbstractBase
         $prov = tx_rnbase::makeInstance(ListProvider::class);
         $prov->initBySearch($searchCallback, $fields, $options);
 
-        $decorator = tx_rnbase::makeInstance(MatchDecorator::class);
+        $decorator = $this->matchDecorator;
         $items = [];
-        $prov->iterateAll([
-            $this,
+
+        $prov->iterateAll(
             function ($item) use (&$items, $decorator, $configurations, $confId) {
                 $data = $decorator->prepareItem($item, $configurations, $confId);
                 $items[] = $data;
             }
-        ]);
+        );
 
         return $items;
     }

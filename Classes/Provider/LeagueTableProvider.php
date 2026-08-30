@@ -13,7 +13,7 @@ use tx_rnbase;
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2012-2025 Rene Nitzsche
+ *  (c) 2012-2026 Rene Nitzsche
  *  Contact: rene@system25.de
  *  All rights reserved
  *
@@ -42,6 +42,12 @@ use tx_rnbase;
  */
 class LeagueTableProvider extends AbstractBase
 {
+    private CompetitionDecorator $compDecorator;
+
+    public function __construct(CompetitionDecorator $compDecorator)
+    {
+        $this->compDecorator = $compDecorator;
+    }
 
     protected function handleRequest($configurations, $confId)
     {
@@ -51,8 +57,7 @@ class LeagueTableProvider extends AbstractBase
             if ($tableData) {
                 $data = new stdClass();
                 $data->rounds = isset($tableData->rounds) ? $tableData->rounds : [];
-                $decorator = tx_rnbase::makeInstance(CompetitionDecorator::class);
-                $data->competition = $decorator->prepareItem($tableData->competition, $configurations, $confId . 'get.defined.' . $tableAlias . '.competition.');
+                $data->competition = $this->compDecorator->prepareItem($tableData->competition, $configurations, $confId . 'get.defined.' . $tableAlias . '.competition.');
             }
         }
         return $data;

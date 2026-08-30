@@ -9,6 +9,7 @@ use System25\T3sports\Model\Team;
 use Sys25\RnBase\Utility\Strings;
 use Sys25\RnBase\Domain\Collection\BaseCollection;
 use Sys25\RnBase\Utility\TSFAL;
+use System25\T3sports\Model\Repository\TeamNoteRepository;
 use System25\T3srest\Utility\FALUtil;
 use tx_rnbase;
 
@@ -44,6 +45,7 @@ use tx_rnbase;
 class TeamDecorator extends BaseDecorator
 {
 
+    private $profileDecorator;
     protected static $externals = [
         'pictures',
         'logo',
@@ -51,6 +53,11 @@ class TeamDecorator extends BaseDecorator
         'coaches',
         'supporters'
     ];
+
+    public function __construct(TeamNoteRepository $teamNoteRepo)
+    {
+        $this->profileDecorator = new ProfileDecorator($teamNoteRepo);
+    }
 
     public function addPlayers($team, $configurations, $confId)
     {
@@ -91,12 +98,11 @@ class TeamDecorator extends BaseDecorator
         if (! empty($children) && ! array_key_exists('orderby', $options)) { // Default sorting
             $children = $this->sortProfiles($children, $team->getProperty($joinCol));
         }
-        $decorator = tx_rnbase::makeInstance(ProfileDecorator::class);
-        $decorator->setTeam($team);
+        $this->profileDecorator->setTeam($team);
 
         $team->$joinCol = [];
         foreach ($children as $child) {
-            $data = $decorator->prepareItem($child, $configurations, $confId);
+            $data = $this->profileDecorator->prepareItem($child, $configurations, $confId);
             array_push($team->$joinCol, $data);
         }
         $team->setProperty($joinCol, $team->$joinCol);
@@ -127,12 +133,13 @@ class TeamDecorator extends BaseDecorator
 
     /**
      * Team ein Logo zuordnen
+     * Methode wird über loadExternals aufgerufen.
      *
      * @param Team $team
      * @param tx_rnbase_configurations $configurations
      * @param string $confId
      */
-    public static function addLogo($team, $configurations, $confId)
+    public function addLogo($team, $configurations, $confId)
     {
         // 1. Bild direkt zugeordnet
         $pics = FALUtil::getFalPictures($team->getUid(), 'tx_cfcleague_teams', 'logo', $configurations, $confId);
