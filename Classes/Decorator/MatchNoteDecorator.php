@@ -52,6 +52,10 @@ class MatchNoteDecorator extends BaseDecorator
             $msg = str_replace(["\r", '<br />'], '', $msg);
             $item->setProperty('comment', $msg);
         }
+
+        if ($crdate = $item->getProperty('crdate')) {
+            $item->setProperty('tstamp', $crdate);
+        }
     }
 
     protected function addProfiles($item, $configurations, $confId)
